@@ -30,10 +30,10 @@ from gui.dialogs.WarningDialog import WarningDialog
 
 from gui.style import dark_stylesheet
 
-from lib.Device import Device
-from lib.Channel import Channel
-from lib.Procedure import Procedure, PidProcedure, TimerProcedure
-from lib.FileOps import load_from_csv
+from Device import Device
+from Channel import Channel
+from Procedure import Procedure, PidProcedure, TimerProcedure
+from FileOps import load_from_csv
 
 
 def query_server(com_pipe, server_url, debug=False):
