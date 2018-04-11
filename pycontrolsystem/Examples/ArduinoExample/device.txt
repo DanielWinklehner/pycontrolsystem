@@ -1,0 +1,232 @@
+{
+    "control-system-settings": {
+        "pinned-channel": "s4", 
+        "pinned-device": "Arduino", 
+        "plotted-channels": [
+            [
+                "s1", 
+                "Arduino"
+            ], 
+            [
+                "s2", 
+                "Arduino"
+            ], 
+            [
+                "s3", 
+                "Arduino"
+            ], 
+            [
+                "s4", 
+                "Arduino"
+            ]
+        ]
+    }, 
+    "devices": {
+        "Arduino": {
+            "channels": {
+                "l1": {
+                    "data_type": "<class 'bool'>", 
+                    "display_mode": "f", 
+                    "display_order": 0, 
+                    "label": "LED On/Off", 
+                    "lower_limit": true, 
+                    "mode": "write", 
+                    "name": "l1", 
+                    "plot_settings": {
+                        "widget": {
+                            "color": "#ff0000"
+                        }, 
+                        "x": {
+                            "grid": false, 
+                            "label": "", 
+                            "log": false, 
+                            "max": 0, 
+                            "min": 0, 
+                            "mode": "auto"
+                        }, 
+                        "y": {
+                            "grid": false, 
+                            "label": "", 
+                            "log": false, 
+                            "max": 0, 
+                            "min": 0, 
+                            "mode": "auto"
+                        }
+                    }, 
+                    "precision": 2, 
+                    "scaling": 1.0, 
+                    "scaling_read": null, 
+                    "stored_values": 500, 
+                    "unit": "", 
+                    "upper_limit": true, 
+                    "write_mode": "text"
+                }, 
+                "s1": {
+                    "data_type": "<class 'float'>", 
+                    "display_mode": "f", 
+                    "display_order": 40, 
+                    "label": "Sine Wave 1", 
+                    "lower_limit": -1.0, 
+                    "mode": "read", 
+                    "name": "s1", 
+                    "plot_settings": {
+                        "widget": {
+                            "color": "#ff0000"
+                        }, 
+                        "x": {
+                            "grid": true, 
+                            "label": "", 
+                            "log": false, 
+                            "max": 1523469981.949793, 
+                            "min": 1523469962.6702423, 
+                            "mode": "auto"
+                        }, 
+                        "y": {
+                            "grid": true, 
+                            "label": "", 
+                            "log": false, 
+                            "max": 1.1189812210700913, 
+                            "min": -1.1189812210700913, 
+                            "mode": "auto"
+                        }
+                    }, 
+                    "precision": 2, 
+                    "scaling": 1.0, 
+                    "scaling_read": null, 
+                    "stored_values": 500, 
+                    "unit": "a.u.", 
+                    "upper_limit": 1.0, 
+                    "write_mode": "text"
+                }, 
+                "s2": {
+                    "data_type": "<class 'float'>", 
+                    "display_mode": "f", 
+                    "display_order": 30, 
+                    "label": "Sine Wave 2", 
+                    "lower_limit": -1.0, 
+                    "mode": "read", 
+                    "name": "s2", 
+                    "plot_settings": {
+                        "widget": {
+                            "color": "#268205"
+                        }, 
+                        "x": {
+                            "grid": true, 
+                            "label": "", 
+                            "log": false, 
+                            "max": 1523469998.7827902, 
+                            "min": 1523469979.5312154, 
+                            "mode": "auto"
+                        }, 
+                        "y": {
+                            "grid": true, 
+                            "label": "", 
+                            "log": false, 
+                            "max": 1.1168992600561538, 
+                            "min": -1.1158992600561537, 
+                            "mode": "auto"
+                        }
+                    }, 
+                    "precision": 2, 
+                    "scaling": 1.0, 
+                    "scaling_read": null, 
+                    "stored_values": 500, 
+                    "unit": "a.u.", 
+                    "upper_limit": 1.0, 
+                    "write_mode": "text"
+                }, 
+                "s3": {
+                    "data_type": "<class 'float'>", 
+                    "display_mode": "f", 
+                    "display_order": 20, 
+                    "label": "Sine Wave 3", 
+                    "lower_limit": -1.0, 
+                    "mode": "read", 
+                    "name": "s3", 
+                    "plot_settings": {
+                        "widget": {
+                            "color": "#0916d6"
+                        }, 
+                        "x": {
+                            "grid": true, 
+                            "label": "", 
+                            "log": false, 
+                            "max": 1523469994.0284762, 
+                            "min": 1523469974.5579505, 
+                            "mode": "auto"
+                        }, 
+                        "y": {
+                            "grid": true, 
+                            "label": "", 
+                            "log": false, 
+                            "max": 1.1200412717312875, 
+                            "min": -1.1190412717312876, 
+                            "mode": "auto"
+                        }
+                    }, 
+                    "precision": 2, 
+                    "scaling": 1.0, 
+                    "scaling_read": null, 
+                    "stored_values": 500, 
+                    "unit": "a.u.", 
+                    "upper_limit": 1.0, 
+                    "write_mode": "text"
+                }, 
+                "s4": {
+                    "data_type": "<class 'float'>", 
+                    "display_mode": "f", 
+                    "display_order": 10, 
+                    "label": "Sine Wave 4", 
+                    "lower_limit": -1.0, 
+                    "mode": "read", 
+                    "name": "s4", 
+                    "plot_settings": {
+                        "widget": {
+                            "color": "#c8c844"
+                        }, 
+                        "x": {
+                            "grid": true, 
+                            "label": "", 
+                            "log": false, 
+                            "max": 1523470004.2800171, 
+                            "min": 1523469984.7416542, 
+                            "mode": "auto"
+                        }, 
+                        "y": {
+                            "grid": true, 
+                            "label": "", 
+                            "log": false, 
+                            "max": 1.1169582982434627, 
+                            "min": -1.1169582982434627, 
+                            "mode": "auto"
+                        }
+                    }, 
+                    "precision": 2, 
+                    "scaling": 1.0, 
+                    "scaling_read": null, 
+                    "stored_values": 500, 
+                    "unit": "a.u.", 
+                    "upper_limit": 1.0, 
+                    "write_mode": "text"
+                }
+            }, 
+            "device_id": "95433343933351B012C2", 
+            "driver": "Arduino", 
+            "label": "Test Arduino", 
+            "name": "Arduino", 
+            "overview_order": -2
+        }
+    }, 
+    "procedures": {}, 
+    "window-settings": {
+        "split-main-first": 468, 
+        "split-main-second": 1425, 
+        "split-settings-first": 927, 
+        "split-settings-second": 321, 
+        "window-height": 1056, 
+        "window-maximize-state": false, 
+        "window-pos-x": -8, 
+        "window-pos-y": -8, 
+        "window-width": 1936
+    }
+}

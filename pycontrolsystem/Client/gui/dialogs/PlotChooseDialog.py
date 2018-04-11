@@ -8,8 +8,8 @@ from PyQt5.QtWidgets import QDialog, QTreeWidgetItem
 from PyQt5.QtCore import Qt
 from .ui_PlotChooseDialog import Ui_PlotChooseDialog
 
-from lib.Device import Device
-from lib.Channel import Channel
+from Device import Device
+from Channel import Channel
 
 class PlotChooseDialog(QDialog):
 

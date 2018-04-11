@@ -11,8 +11,9 @@ from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QPushButton, \
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QThread
 from PyQt5.QtGui import QSizePolicy, QPixmap, QIcon
 
-from .Pid import Pid
-from .Timer import Timer
+from Pid import Pid
+from Timer import Timer
+
 
 class Procedure(QObject):
 

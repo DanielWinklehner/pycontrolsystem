@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QDialog, QColorDialog
 from PyQt5.QtGui import QColor
 from .ui_PlotSettingsDialog import Ui_PlotSettingsDialog
 
-from lib.Channel import Channel
+from Channel import Channel
 
 import pyqtgraph as pg
 

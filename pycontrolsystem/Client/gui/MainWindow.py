@@ -22,9 +22,9 @@ from .dialogs.ErrorDialog import ErrorDialog
 from .widgets.DateTimePlotWidget import DateTimePlotWidget
 from .widgets.EntryForm import EntryForm
 
-from lib.Device import Device
-from lib.Channel import Channel
-from lib.Procedure import Procedure
+from Device import Device
+from Channel import Channel
+from Procedure import Procedure
 
 class MainWindow(QMainWindow):
 

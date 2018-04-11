@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, \
         QGroupBox, QLabel, QFrame
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject
 
-from .Channel import Channel
+from Channel import Channel
 from gui.widgets.EntryForm import EntryForm
 
 class DeviceWidget(QWidget):

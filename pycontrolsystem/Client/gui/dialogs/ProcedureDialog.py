@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import QDialog, QFrame, QLabel, QPushButton, QVBoxLayout, \
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
 from .ui_ProcedureDialog import Ui_ProcedureDialog
-from lib.Procedure import Procedure, BasicProcedure, PidProcedure, TimerProcedure
+from Procedure import Procedure, BasicProcedure, PidProcedure, TimerProcedure
 from gui.widgets.DeviceChannelComboBox import DeviceChannelComboBox
 
 class ProcedureDialog(QDialog):

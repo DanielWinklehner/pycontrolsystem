@@ -11,7 +11,7 @@ from collections import deque
 from flask import Flask, request
 import numpy as np
 
-from MIST1DeviceDriver import driver_mapping
+from DeviceDriver import driver_mapping
 from SerialCOM import *
 from DeviceFinder import *
 
@@ -34,7 +34,7 @@ class DeviceManager(object):
         # polling rate for this device
         self._polling_rate = 0
         self._com_times = deque(maxlen=20)
-        self._polling_rate_max = 50.  # Hz
+        self._polling_rate_max = 30.0  # Hz
 
         self._set_command_queue = queue.Queue()
         self._terminate = False

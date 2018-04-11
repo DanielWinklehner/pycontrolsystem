@@ -8,8 +8,8 @@ from PyQt5.QtWidgets import QFrame, QHBoxLayout, QComboBox, QLabel, QWidget
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QSizePolicy
 
-from lib.Device import Device
-from lib.Channel import Channel
+from Device import Device
+from Channel import Channel
 
 class DeviceChannelComboBox(QWidget):
 

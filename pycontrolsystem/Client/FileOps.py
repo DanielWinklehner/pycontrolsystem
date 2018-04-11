@@ -8,9 +8,9 @@
 import json
 import operator
 
-from lib.Device import Device
-from lib.Channel import Channel
-from lib.Procedure import PidProcedure, TimerProcedure 
+from Device import Device
+from Channel import Channel
+from Procedure import PidProcedure, TimerProcedure
 
 def load_from_csv(filename=''):
 
