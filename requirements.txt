@@ -1,0 +1,5 @@
+flask
+numpy
+pyserial
+time
+datetime
