@@ -5,6 +5,7 @@
 # Procedure base class
 
 import operator
+import time
 
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QPushButton, \
                             QGroupBox, QWidget, QTextEdit, QLineEdit
@@ -25,17 +26,17 @@ class Procedure(QObject):
         super().__init__()
         self._name = name
         self._title = self._name
-        
+
     def initialize(self):
         gb = QGroupBox(self._title)
         vbox = QVBoxLayout()
         gb.setLayout(vbox)
         self._lblInfo = QLabel(self.info)
         vbox.addWidget(self._lblInfo)
- 
+
         vbox.addLayout(self.control_button_layout())
 
-        self._widget = gb 
+        self._widget = gb
 
     def control_button_layout(self):
         hbox = QHBoxLayout()
@@ -80,6 +81,7 @@ class Procedure(QObject):
 class BasicProcedure(Procedure):
 
     _sig_trigger = pyqtSignal(object)
+    _sig_set = pyqtSignal(object, float)
 
     def __init__(self, name, rules, actions, critical=False, triggertype='', email='', sms=''):
         super(BasicProcedure, self).__init__(name)
@@ -87,26 +89,30 @@ class BasicProcedure(Procedure):
         self._rules = rules
         self._actions = actions
         self._critical = critical
-        
+
         if  triggertype not in ('startpoll', 'stoppoll', 'emstop', ''):
             print('invalid trigger type, setting manual mode...')
             self._triggertype = ''
         else:
             self._triggertype = triggertype
 
-        #if self._rules is None:
-
         # these should trigger sending email/sms if not blank
         self._email = email
         self._sms = sms
-        
+
         if self._critical:
             self._title = '(Critical) {}'.format(self._name)
+
+        self._running = False
+        self._tripped = False
+        self._proc_thread = QThread()
+        self._proc_thread.started.connect(self.run_procedure)
+        self._proc_thread.finished.connect(self.on_proc_thread_finished)
 
     def control_button_layout(self):
         hbox = QHBoxLayout()
         self._btnTrigger = QPushButton('Trigger')
-        self._btnTrigger.clicked.connect(lambda: self._sig_trigger.emit(self))
+        self._btnTrigger.clicked.connect(lambda: self.do_actions())
         hbox.addWidget(self._btnTrigger)
         hbox.addStretch()
         self._btnEdit = QPushButton('Edit')
@@ -117,6 +123,14 @@ class BasicProcedure(Procedure):
         hbox.addWidget(self._btnDelete)
 
         return hbox
+
+    def rule_devices(self):
+        """ Only return the devices used in this procedure's rules """
+        devices = set()
+        for idx, rule in self._rules.items():
+            devices.add(rule['device'])
+
+        return list(devices)
 
     def devices_channels_used(self):
         devices = set()
@@ -130,7 +144,6 @@ class BasicProcedure(Procedure):
             channels.add(action['channel'])
 
         return (devices, channels)
-
 
     @property
     def rules(self):
@@ -151,21 +164,36 @@ class BasicProcedure(Procedure):
     @property
     def sms(self):
         return self._sms
-    
+
     def should_perform_procedure(self):
         condition_satisfied = True
         for arduino_id, rule in self._rules.items():
-            if not rule['comparison'](channel.value, rule['value']):
+            if not rule['comp'](rule['channel'].value, rule['value']):
                 condition_satisfied = False
                 break
 
+        if not condition_satisfied:
+            self._tripped = False
+
         return condition_satisfied
-    
+
     def do_actions(self):
+        """ pre-function to set up the action running of this procedure """
+        if not self._running and not self._tripped:
+            self._tripped = True
+            self._running = True
+            self._proc_thread.start()
+
+    def run_procedure(self):
+        """ To be run in a separate thread. Set values as specified by user """
         for arduino_id, action in self._actions.items():
-            print('setting value of {}.{} to {}'.format(action['device'].name,
-                                                        action['channel'].name,
-                                                        action['value'].name))
+
+            time.sleep(action['delay'])
+            #print('setting value of {}.{} to {}'.format(action['device'].label,
+            #                                            action['channel'].label,
+            #                                            action['value']))
+
+            self._sig_set.emit(action['channel'], action['value'])
 
         if self._email != '':
             # send email
@@ -174,7 +202,20 @@ class BasicProcedure(Procedure):
         if self._sms != '':
             # send text
             pass
-    
+
+        self._proc_thread.quit()
+
+    @pyqtSlot()
+    def on_proc_thread_finished(self):
+        print('Procedure {} completed'.format(self._name))
+
+        # reset the thread after it ends
+        self._running = False
+
+    @property
+    def set_signal(self):
+        return self._sig_set
+
     @property
     def info(self):
         rval = ''
@@ -209,8 +250,8 @@ class BasicProcedure(Procedure):
         for idx, action in self._actions.items():
             totaldelay += action['delay']
             actionvalstr = val_to_str(action['channel'].data_type, action['value'])
-            rval += '  {}. Set {}.{} to {} {} after {} seconds\n'.format(str(idx + 1), action['device'].label, 
-                                                   action['channel'].label, actionvalstr, 
+            rval += '  {}. Set {}.{} to {} {} after {} seconds\n'.format(str(idx + 1), action['device'].label,
+                                                   action['channel'].label, actionvalstr,
                                                    action['channel'].unit,
                                                    totaldelay)
 
@@ -225,7 +266,7 @@ class BasicProcedure(Procedure):
 
 class TimerProcedure(Procedure):
 
-    def __init__(self, name, start_channel=None, start_value=0.0, start_comp=operator.gt, 
+    def __init__(self, name, start_channel=None, start_value=0.0, start_comp=operator.gt,
                              stop_channel=None, stop_value=0.0, stop_comp=operator.gt,
                              min_time=0.0, continuous=False):
 
@@ -233,7 +274,7 @@ class TimerProcedure(Procedure):
         self._title = '(Timer) {}'.format(self._name)
 
         self._timer = Timer(start_channel, start_value, start_comp,
-                            stop_channel, stop_value, stop_comp, 
+                            stop_channel, stop_value, stop_comp,
                             min_time, continuous)
 
         self._timer.start_signal.connect(self.on_timer_start)
@@ -257,11 +298,11 @@ class TimerProcedure(Procedure):
         self._txtLog.setMaximumWidth(700)
         hbox.addWidget(self._lblInfo)
         hbox.addWidget(self._txtLog)
- 
+
         vbox.addLayout(hbox)
         vbox.addLayout(self.control_button_layout())
 
-        self._widget = gb 
+        self._widget = gb
 
     def control_button_layout(self):
         hbox = QHBoxLayout()
@@ -317,7 +358,7 @@ class TimerProcedure(Procedure):
         rval = ''
         if self._timer.continuous:
             rval += 'Continuous\n'
-        
+
         rval += 'Start timing when {}.{} is {} than {} {}\n'.format(
                 self._timer.start_channel.parent_device.label,
                 self._timer.start_channel.label,
@@ -332,7 +373,7 @@ class TimerProcedure(Procedure):
                 self._timer.stop_channel.unit)
         if self._timer.min_time != 0.0:
             rval += '\nMinimum time: {} s'.format(self._timer.min_time)
-        
+
         return rval
 
     def devices_channels_used(self):
@@ -378,7 +419,7 @@ class PidProcedure(Procedure):
         self._pid.ma_signal.connect(self.on_pid_ma_signal)
         self._write_channel = write_channel
         self._pid_thread = None
-        
+
         self._pid_thread = QThread()
         self._pid.moveToThread(self._pid_thread)
         self._pid_thread.started.connect(self._pid.run)
@@ -412,11 +453,11 @@ class PidProcedure(Procedure):
         vbox_info.addLayout(hbox_target)
         hbox.addLayout(vbox_info)
         hbox.addWidget(self._txtLog)
- 
+
         vbox.addLayout(hbox)
         vbox.addLayout(self.control_button_layout())
 
-        self._widget = gb 
+        self._widget = gb
 
     def control_button_layout(self):
         hbox = QHBoxLayout()

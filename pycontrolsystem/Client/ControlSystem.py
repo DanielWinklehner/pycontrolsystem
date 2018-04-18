@@ -18,8 +18,6 @@ from multiprocessing import Process, Pipe
 from PyQt5.QtCore import QObject, QThread, QTimer, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QApplication, QFileDialog
 
-import numpy as np
-
 from gui import MainWindow
 
 from gui.dialogs.PlotChooseDialog import PlotChooseDialog
@@ -32,7 +30,7 @@ from gui.style import dark_stylesheet
 
 from Device import Device
 from Channel import Channel
-from Procedure import Procedure, PidProcedure, TimerProcedure
+from Procedure import Procedure, BasicProcedure, PidProcedure, TimerProcedure
 from FileOps import load_from_csv
 
 
@@ -471,6 +469,17 @@ class ControlSystem(object):
         else:
             ch.append_data(timestamp, ch.value)
 
+        # check basic procedures to see if we should activate them
+        for name, procedure in self._procedures.items():
+            if not isinstance(procedure, BasicProcedure):
+                continue
+
+            if not self._devices[device_name] in procedure.rule_devices():
+                continue
+
+            if procedure.should_perform_procedure():
+                procedure.do_actions()
+
     @pyqtSlot(object)
     def connect_device_channel_entry_form(self, obj):
         """ Connects the new object's save and delete signals to the control system """
@@ -877,6 +886,9 @@ class ControlSystem(object):
         if isinstance(procedure, PidProcedure):
             procedure.set_signal.connect(self.set_value_callback)
 
+        if isinstance(procedure, BasicProcedure):
+            procedure.set_signal.connect(self.set_value_callback)
+
         procedure.initialize()
 
     def edit_procedure(self, proc):
@@ -939,8 +951,8 @@ if __name__ == '__main__':
     app = QApplication([])
     app.setStyleSheet(dark_stylesheet())
 
-    # cs = ControlSystem(server_ip='10.77.0.4', server_port=5000, debug=False)
-    cs = ControlSystem(server_ip='127.0.0.1', server_port=5000, debug=False)
+    cs = ControlSystem(server_ip='10.77.0.4', server_port=5000, debug=False)
+    #cs = ControlSystem(server_ip='127.0.0.1', server_port=5000, debug=False)
 
     # connect the closing event to the quit button procedure
     app.aboutToQuit.connect(cs.on_quit_button)

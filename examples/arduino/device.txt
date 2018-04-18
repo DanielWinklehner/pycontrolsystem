@@ -1,6 +1,6 @@
 {
     "control-system-settings": {
-        "pinned-channel": "s4", 
+        "pinned-channel": "s1", 
         "pinned-device": "Arduino", 
         "plotted-channels": [
             [
@@ -217,16 +217,23 @@
             "overview_order": -2
         }
     }, 
-    "procedures": {}, 
+    "procedures": {
+        "set_off": {
+            "name": "set_off"
+        }, 
+        "set_on": {
+            "name": "set_on"
+        }
+    }, 
     "window-settings": {
-        "split-main-first": 468, 
-        "split-main-second": 1425, 
-        "split-settings-first": 927, 
-        "split-settings-second": 321, 
-        "window-height": 1056, 
+        "split-main-first": 550, 
+        "split-main-second": 1037, 
+        "split-settings-first": 527, 
+        "split-settings-second": 471, 
+        "window-height": 942, 
         "window-maximize-state": false, 
-        "window-pos-x": -8, 
-        "window-pos-y": -8, 
-        "window-width": 1936
+        "window-pos-x": 215, 
+        "window-pos-y": 64, 
+        "window-width": 1614
     }
 }

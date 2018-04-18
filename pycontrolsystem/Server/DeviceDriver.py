@@ -1,7 +1,7 @@
 from Drivers import *
 
 
-class MIST1DeviceDriver:
+class DeviceDriver:
     def __init__(self,
                  driver_name=None):
 
