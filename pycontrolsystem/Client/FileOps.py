@@ -30,6 +30,7 @@ def str_to_comp(compstr):
     if compstr == 'lesseq':
         return operator.le
 
+
 def load_from_csv(filename=''):
 
     if filename == '':
@@ -85,6 +86,7 @@ def load_from_csv(filename=''):
             else:
                 filtered_params[key] = value
 
+        # convert device names (which are stored in json) to device objects used by procedures
         if proc_type == 'pid':
             filtered_params['read_channel'] = \
                 devices[proc_data['read-device']].channels[proc_data['read-channel']]

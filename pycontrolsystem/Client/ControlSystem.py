@@ -623,9 +623,6 @@ class ControlSystem(object):
 
         device.reset_entry_form()
 
-        # return true if successful
-        return True
-
         """
         # Add corresponding channels to the hdf5 log.
         for channel_name, channel in device.channels().items():
@@ -638,6 +635,9 @@ class ControlSystem(object):
                                                             [device.label(), "Device", "edit_device", device.name(),
                                                              device.name()])
         """
+
+        # return true if successful
+        return True
 
     def add_channel(self, channel):
         if channel.parent_device is None:

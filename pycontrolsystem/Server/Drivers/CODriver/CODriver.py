@@ -47,7 +47,7 @@ class CODriver:
 
     @staticmethod
     def get_driver_name():
-        return "CO Series"
+        return "MATSUSADA"
 
     def translate_gui_to_device(self, server_to_driver):
 
@@ -62,11 +62,12 @@ class CODriver:
 
         num_of_mesg = len(server_to_driver['channel_ids'])
         assert num_of_mesg == len(server_to_driver['precisions'])
-        assert server_to_driver['device_driver'] == "CO Series"
+        assert server_to_driver['device_driver'] == "MATSUSADA"
 
         # Each message contains a flag whether we wait for a response
         device_id = server_to_driver['device_id']
-        drivers_response_to_server = [('#{} REN \r'.format(device_id), 0)]
+        #drivers_response_to_server = [('#{} REN \r'.format(device_id), 0)]
+        drivers_response_to_server = [('#AL REN \r', 0)]
 
         for i in range(num_of_mesg):
             drivers_response_to_server.append(

@@ -11,6 +11,8 @@ from collections import deque
 from flask import Flask, request
 import numpy as np
 
+from ftd2xx.ftd2xx import DeviceError
+
 from DeviceDriver import driver_mapping
 from SerialCOM import *
 from DeviceFinder import *
@@ -337,7 +339,7 @@ def all_devices():
     global _devices
     ports = {}
     for _id, dm in _devices.items():
-        ports[_id] = [dm.port, dm.polling_rate]
+        ports[_id] = [dm.port, dm.polling_rate, dm.driver]
     return json.dumps(ports)
 
 
@@ -410,15 +412,23 @@ def listen_to_pipe():
                     for _key, _port_info in _added.items():
                         print('Adding device {} on port {}'.format(_key, _port_info))
                         _baud_rate = driver_mapping[_port_info['identifier']]['baud_rate']
-                        com = FTDICOM(vend_prod_id=_port_info['vend_prod'],
-                                      port_name=0,
-                                      baud_rate=_baud_rate,
-                                      timeout=1.0)
+                        found = False
+                        it = 0
+                        while not found:
+                            try:
+                                com = FTDICOM(vend_prod_id=_port_info['vend_prod'],
+                                              port_name=it,
+                                              baud_rate=_baud_rate,
+                                              timeout=1.0)
+                                found = True
+                            except DeviceError:
+                                it += 1
+                                if it > 10:
+                                    sys.exit()
                         # we can only get the serial number after creating the com
                         # object, but we still want to use it as the key for everything
                         # since the user will put it in the gui
                         sn = com.serial_number()
-                        print('Adding device {}'.format(sn))
                         _ftdi_serial_port_mapping[_key] = sn
                         drv = driver_mapping[_port_info["identifier"]]['driver']()
                         _devices[sn] = DeviceManager(sn, drv, com)

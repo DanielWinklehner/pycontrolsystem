@@ -211,7 +211,7 @@ class Device(QObject):
 
     @staticmethod
     def driver_list():
-        return ['Arduino', 'RS485', 'FT232R', 'Teensy', 'Prolific', 'CO Series']
+        return ['Arduino', 'RS485', 'FT232R', 'Teensy', 'Prolific', 'MATSUSADA']
 
     def user_edit_properties(self):
         """ Returns list of properties that should be user-editable
