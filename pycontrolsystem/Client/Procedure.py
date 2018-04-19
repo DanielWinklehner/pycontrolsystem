@@ -250,7 +250,7 @@ class BasicProcedure(Procedure):
         for idx, action in self._actions.items():
             totaldelay += action['delay']
             actionvalstr = val_to_str(action['channel'].data_type, action['value'])
-            rval += '  {}. Set {}.{} to {} {} after {} seconds\n'.format(str(idx + 1), action['device'].label,
+            rval += '  {}. Set {}.{} to {} {} after {} seconds\n'.format(int(idx) + 1, action['device'].label,
                                                    action['channel'].label, actionvalstr,
                                                    action['channel'].unit,
                                                    totaldelay)
@@ -263,6 +263,47 @@ class BasicProcedure(Procedure):
             rval += '  Send a text to {}\n'.format(self._sms)
 
         return rval
+
+    @property
+    def json(self):
+        rule_dict = {}
+        action_dict = {}
+        for idx, rule in self._rules.items():
+            # write a string for the operator for each rule
+            compstr = ''
+            if rule['comp'] == operator.eq:
+                compstr = 'equal'
+            if rule['comp'] == operator.lt:
+                compstr = 'less'
+            elif rule['comp'] == operator.gt:
+                compstr = 'greater'
+            elif rule['comp'] == operator.ge:
+                compstr = 'greatereq'
+            elif rule['comp'] == operator.le:
+                compstr = 'lesseq'
+
+            rule_dict[idx] = {'rule_device': rule['device'].name,
+                              'rule_channel': rule['channel'].name,
+                              'comp': compstr,
+                              'value': rule['value']
+                             }
+        for idx, action in self._actions.items():
+            action_dict[idx] = {'action_device': action['device'].name,
+                                'action_channel': action['channel'].name,
+                                'action_delay': action['delay'],
+                                'action_value': action['value']
+                               }
+
+        return {
+            'name': self._name,
+            'type': 'basic',
+            'triggertype': self._triggertype,
+            'rules': rule_dict,
+            'actions': action_dict,
+            'email': self._email,
+            'sms': self._sms,
+            'critical': self._critical
+        }
 
 class TimerProcedure(Procedure):
 

@@ -10,7 +10,25 @@ import operator
 
 from Device import Device
 from Channel import Channel
-from Procedure import PidProcedure, TimerProcedure
+from Procedure import BasicProcedure, PidProcedure, TimerProcedure
+
+
+def str_to_comp(compstr):
+    """" Translate an operator string to an operator object """
+    if compstr == 'equal':
+        return operator.eq
+
+    if compstr == 'less':
+        return operator.lt
+
+    if compstr == 'greater':
+        return operator.gt
+
+    if compstr == 'greatereq':
+        return operator.ge
+
+    if compstr == 'lesseq':
+        return operator.le
 
 def load_from_csv(filename=''):
 
@@ -79,7 +97,28 @@ def load_from_csv(filename=''):
             filtered_params['stop_channel'] = \
                 devices[proc_data['stop-device']].channels[proc_data['stop-channel']]
             proc = TimerProcedure(**filtered_params)
+        elif proc_type == 'basic':
+            rules = {}
+            actions = {}
+            for idx, rule in filtered_params['rules'].items():
+                rules[idx] = {'comp': str_to_comp(rule['comp']),
+                              'device': devices[rule['rule_device']],
+                              'channel': devices[rule['rule_device']].channels[rule['rule_channel']],
+                              'value': rule['value']
+                              }
+
+            for idx, action in filtered_params['actions'].items():
+                actions[idx] = {'device': devices[action['action_device']],
+                                'channel': devices[action['action_device']].channels[action['action_channel']],
+                                'delay': action['action_delay'],
+                                'value': action['action_value'],
+                               }
+
+            filtered_params['rules'] = rules
+            filtered_params['actions'] = actions
+
+            proc = BasicProcedure(**filtered_params)
 
         procedures[proc.name] = proc
 
-    return (devices, procedures, winsettings, cssettings)
+    return devices, procedures, winsettings, cssettings
