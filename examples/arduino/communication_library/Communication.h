@@ -17,8 +17,7 @@ namespace mist1 {
       void add_channel(Channel ch);
   
       //get_action();
-  
-      
+        
       void get_serial_data(char message[128]);
       int get_number_of_channels_queried(char * inputMessage );
       float get_value_to_set(char * inputMessage );
@@ -33,12 +32,13 @@ namespace mist1 {
       Channel get_channel_by_identifier_and_number(String identifier, unsigned number);
       
       void respond_to_input_message();
-      
+      void set_delay_us(int delay_us);
      
     private:
       String _com_name;
       Channel _all_channels[16];
       int _number_of_channels = 0;
+	  int _delay_us = 50;
       
   };  
 }

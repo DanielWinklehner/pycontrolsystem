@@ -9,6 +9,7 @@
 char inputMessage[128];
 mist1::Communication com = mist1::Communication("Test Box");
 
+
 // Four frequencies for the sine waves
 const float frequencies[] = {0.1/1000.0*2.0*PI, 0.2/1000.0*2.0*PI, 0.4/1000.0*2.0*PI, 0.8/1000.0*2.0*PI};  // Hz/1000.0*2*pi
 
@@ -67,6 +68,7 @@ void setup() {
 
   // Now we add the four read channels for the sine waves (note that the set channel is
   // just connected to the dummy function for each channel)
+  com.set_delay_us(75);
   com.add_channel(mist1::Channel("Sine1", 's', 1, &dummySetFunc, &get_s1));
   com.add_channel(mist1::Channel("Sine2", 's', 2, &dummySetFunc, &get_s2));
   com.add_channel(mist1::Channel("Sine3", 's', 3, &dummySetFunc, &get_s3));

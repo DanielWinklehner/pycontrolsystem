@@ -11,11 +11,12 @@ from collections import deque
 from flask import Flask, request
 import numpy as np
 
-from ftd2xx.ftd2xx import DeviceError
-
 from DeviceDriver import driver_mapping
 from SerialCOM import *
 from DeviceFinder import *
+
+if 'Windows' not in myplatform:
+    from ftd2xx.ftd2xx import DeviceError
 
 
 class DeviceManager(object):
@@ -36,10 +37,14 @@ class DeviceManager(object):
         # polling rate for this device
         self._polling_rate = 0
         self._com_times = deque(maxlen=20)
-        self._polling_rate_max = 30.0  # Hz
+        self._polling_rate_max = 50.0  # Hz
 
         self._set_command_queue = queue.Queue()
         self._terminate = False
+
+    @property
+    def driver(self):
+        return self._driver
 
     @property
     def port(self):
@@ -339,9 +344,8 @@ def all_devices():
     global _devices
     ports = {}
     for _id, dm in _devices.items():
-        ports[_id] = [dm.port, dm.polling_rate, dm.driver]
+        ports[_id] = [dm.port, dm.polling_rate, dm.driver.get_driver_name()]
     return json.dumps(ports)
-
 
 
 def listen_to_pipe():

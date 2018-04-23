@@ -230,7 +230,7 @@ class ControlSystem(object):
         # --- Set up communication pipes --- #
         self._keep_communicating = False
         self._retry_devices = False
-        self._polling_rate = 30.0
+        self._polling_rate = 50.0
         self._com_period = 1.0 / self._polling_rate
 
         # --- Set up data dictionaries and lists --- #
@@ -951,8 +951,8 @@ if __name__ == '__main__':
     app = QApplication([])
     app.setStyleSheet(dark_stylesheet())
 
-    cs = ControlSystem(server_ip='10.77.0.2', server_port=5000, debug=False)
-    #cs = ControlSystem(server_ip='127.0.0.1', server_port=5000, debug=False)
+    # cs = ControlSystem(server_ip='10.77.0.2', server_port=5000, debug=False)
+    cs = ControlSystem(server_ip='127.0.0.1', server_port=5000, debug=False)
 
     # connect the closing event to the quit button procedure
     app.aboutToQuit.connect(cs.on_quit_button)

@@ -23,6 +23,11 @@ void mist1::Communication::add_channel(Channel ch) {
   */
 }
 
+void mist1::Communication::set_delay_us(int delay_us){
+	
+	_delay_us = delay_us;
+	
+}
 
 void mist1::Communication::get_serial_data(char message[128]) {
 
@@ -32,7 +37,7 @@ void mist1::Communication::get_serial_data(char message[128]) {
   while(Serial.available() > 0) {
       message[i] = Serial.read();
       i++;
-      delayMicroseconds(100);
+      delayMicroseconds(_delay_us);
   }
 }
 
