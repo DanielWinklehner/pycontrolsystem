@@ -119,7 +119,7 @@ class Device(QObject):
     _sig_update_server = pyqtSignal()
 
     def __init__(self, name='', device_id='', label='', channels=None,
-                 driver='Arduino', overview_order=-1):
+                 driver='ArduinoMega', overview_order=-1):
         super().__init__()
 
         self._name = name
@@ -211,7 +211,7 @@ class Device(QObject):
 
     @staticmethod
     def driver_list():
-        return ['Arduino', 'RS485', 'FT232R', 'Teensy', 'Prolific', 'MATSUSADA']
+        return ['ArduinoMega', 'ArduinoMicro', 'RS485', 'FT232R', 'Teensy', 'Prolific', 'MATSUSADA']
 
     def user_edit_properties(self):
         """ Returns list of properties that should be user-editable

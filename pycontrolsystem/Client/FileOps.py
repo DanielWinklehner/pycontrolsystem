@@ -59,6 +59,10 @@ def load_from_csv(filename=''):
             if not key == "channels":
                 filtered_params[key] = value
 
+        # Legacy support:
+        if filtered_params['driver'] == "Arduino":
+            filtered_params['driver'] = "ArduinoMega"
+
         device = Device(**filtered_params)
 
         for channel_name, channel_data in device_data['channels'].items():
