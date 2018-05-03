@@ -115,8 +115,8 @@ class SerialDeviceFinderWindows(DeviceFinder):
 
             # Go through all identifiers and see if one is found in this serial port
             _identifiers = [identifier for identifier in self._identifiers.keys() if
-                            self._identifiers[identifier]["vid_pid"] == (port_info.vid, port_info.pid)]
-                            # identifier in port_info.description]
+                            self._identifiers[identifier]["vid_pid"] == (port_info.vid, port_info.pid) and
+                            port_info.serial_number in self._identifiers[identifier]["known_serials"]]
 
             if len(_identifiers) == 1:
 
