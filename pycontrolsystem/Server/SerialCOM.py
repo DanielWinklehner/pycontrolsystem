@@ -63,7 +63,10 @@ class SerialCOM(COM):
         """
         COM.__init__(self, arduino_id, port_name, timeout, baud_rate)
 
-        self._ser = serial.Serial(self._port, baudrate=self._baud_rate, timeout=self._timeout)
+        try:
+            self._ser = serial.Serial(self._port, baudrate=self._baud_rate, timeout=self._timeout)
+        except PermissionError:
+            pass
 
         time.sleep(1.0)
 

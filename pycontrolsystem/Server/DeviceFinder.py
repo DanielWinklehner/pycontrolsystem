@@ -106,13 +106,21 @@ class SerialDeviceFinderWindows(DeviceFinder):
 
         for port_info in list_ports.comports():
 
+            if port_info.vid is None:
+                continue
+
+            # print("{}:{}".format(hex(port_info.vid), hex(port_info.pid)), ", {}".format(port_info.description))
+
+            # Match Devices to VID/PID combination in driver_mapping
+
             # Go through all identifiers and see if one is found in this serial port
-            _identifier = [identifier for identifier in self._identifiers.keys() if
-                           identifier in port_info.description]
+            _identifiers = [identifier for identifier in self._identifiers.keys() if
+                            self._identifiers[identifier]["vid_pid"] == (port_info.vid, port_info.pid)]
+                            # identifier in port_info.description]
 
-            if len(_identifier) == 1:
+            if len(_identifiers) == 1:
 
-                _identifier = _identifier[0]
+                _identifier = _identifiers[0]
 
                 port = port_info.device
                 serial_number = port_info.serial_number
