@@ -4,6 +4,7 @@
 # Thomas Wester <twester@mit.edu>
 #
 # Code adapted from MIST1ControlSystem.py (Python 2/gtk3+ version)
+
 import sys
 import os
 import requests
@@ -237,6 +238,7 @@ class ControlSystem(object):
         self._devices = {}
         self._procedures = {}
         self._critical_procedures = {}
+        self._emergency_stop_signals = {}
         self._plotted_channels = []
         self._locked_devices = []
 
@@ -888,6 +890,11 @@ class ControlSystem(object):
 
         if isinstance(procedure, BasicProcedure):
             procedure.set_signal.connect(self.set_value_callback)
+            # connect emergency stop button signal
+            if procedure.triggertype == 'emstop':
+                f = lambda: procedure.do_actions()
+                self._window.ui.btnStop.clicked.connect(f)
+                self._emergency_stop_signals[procedure.name] = f
 
         procedure.initialize()
 
@@ -895,6 +902,12 @@ class ControlSystem(object):
         self.show_ProcedureDialog(False, proc=proc)
 
     def delete_procedure(self, proc):
+        # unbind PyQtSlot from emergency stop button signal
+        if isinstance(proc, BasicProcedure):
+            if proc.triggertype == 'emstop':
+                self._window.ui.btnStop.clicked.disconnect(self._emergency_stop_signals[proc.name])
+                del self._emergency_stop_signals[proc.name]
+
         del self._procedures[proc.name]
         self._window.update_procedures(self._procedures)
 
@@ -954,7 +967,7 @@ if __name__ == '__main__':
     # cs = ControlSystem(server_ip='10.77.0.2', server_port=5000, debug=False)
     # cs = ControlSystem(server_ip='127.0.0.1', server_port=5000, debug=False)
     # cs = ControlSystem(server_ip='10.77.0.222', server_port=5000, debug=False)
-    cs = ControlSystem(server_ip='10.77.0.6', server_port=5000, debug=False)
+    cs = ControlSystem(server_ip='10.77.0.4', server_port=5000, debug=False)
 
     # connect the closing event to the quit button procedure
     app.aboutToQuit.connect(cs.on_quit_button)

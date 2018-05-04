@@ -211,29 +211,40 @@
                 }
             }, 
             "device_id": "95433343933351B012C2", 
-            "driver": "Arduino", 
+            "driver": "ArduinoMega", 
             "label": "Test Arduino", 
             "name": "Arduino", 
             "overview_order": -2
         }
     }, 
     "procedures": {
-        "set_off": {
-            "name": "set_off"
-        }, 
-        "set_on": {
-            "name": "set_on"
+        "My Procedure": {
+            "actions": {
+                "0": {
+                    "action_channel": "l1", 
+                    "action_delay": 0.0, 
+                    "action_device": "Arduino", 
+                    "action_value": false
+                }
+            }, 
+            "critical": false, 
+            "email": "", 
+            "name": "My Procedure", 
+            "rules": {}, 
+            "sms": "", 
+            "triggertype": "emstop", 
+            "type": "basic"
         }
     }, 
     "window-settings": {
         "split-main-first": 550, 
         "split-main-second": 1037, 
-        "split-settings-first": 527, 
-        "split-settings-second": 471, 
+        "split-settings-first": 47, 
+        "split-settings-second": 47, 
         "window-height": 942, 
         "window-maximize-state": false, 
-        "window-pos-x": 215, 
-        "window-pos-y": 64, 
+        "window-pos-x": 147, 
+        "window-pos-y": 52, 
         "window-width": 1614
     }
 }

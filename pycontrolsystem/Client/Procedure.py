@@ -103,8 +103,15 @@ class BasicProcedure(Procedure):
         if self._critical:
             self._title = '(Critical) {}'.format(self._name)
 
+        if self._triggertype == 'emstop':
+            self._title = '(Emergency) {}'.format(self._name)
+
         self._running = False
+
+        # if the procedure condition is met and the procedure activates,
+        # it shouldn't activate again until the condition has been un-met
         self._tripped = False
+
         self._proc_thread = QThread()
         self._proc_thread.started.connect(self.run_procedure)
         self._proc_thread.finished.connect(self.on_proc_thread_finished)
@@ -114,6 +121,12 @@ class BasicProcedure(Procedure):
         self._btnTrigger = QPushButton('Trigger')
         self._btnTrigger.clicked.connect(lambda: self.do_actions())
         hbox.addWidget(self._btnTrigger)
+
+        self._btnReset = QPushButton('Reset')
+        self._btnReset.clicked.connect(lambda: self.reset_tripped())
+        self._btnReset.setEnabled(False)
+        hbox.addWidget(self._btnReset)
+
         hbox.addStretch()
         self._btnEdit = QPushButton('Edit')
         self._btnDelete = QPushButton('Delete')
@@ -123,6 +136,11 @@ class BasicProcedure(Procedure):
         hbox.addWidget(self._btnDelete)
 
         return hbox
+
+    def reset_tripped(self):
+        self._tripped = False
+        self._btnReset.setEnabled(False)
+        self._btnTrigger.setEnabled(True)
 
     def rule_devices(self):
         """ Only return the devices used in this procedure's rules """
@@ -165,6 +183,10 @@ class BasicProcedure(Procedure):
     def sms(self):
         return self._sms
 
+    @property
+    def triggertype(self):
+        return self._triggertype
+
     def should_perform_procedure(self):
         condition_satisfied = True
         for arduino_id, rule in self._rules.items():
@@ -174,6 +196,8 @@ class BasicProcedure(Procedure):
 
         if not condition_satisfied:
             self._tripped = False
+            self._btnReset.setEnabled(False)
+            self._btnTrigger.setEnabled(True)
 
         return condition_satisfied
 
@@ -181,6 +205,8 @@ class BasicProcedure(Procedure):
         """ pre-function to set up the action running of this procedure """
         if not self._running and not self._tripped:
             self._tripped = True
+            self._btnReset.setEnabled(True)
+            self._btnTrigger.setEnabled(False)
             self._running = True
             self._proc_thread.start()
 
@@ -220,6 +246,15 @@ class BasicProcedure(Procedure):
     def info(self):
         rval = ''
 
+        def val_to_str(data_type, val):
+            if data_type != bool:
+                return str(val)
+            else:
+                if val:
+                    return 'On'
+                else:
+                    return 'Off'
+
         for idx, rule in self._rules.items():
             if rule['comp'] == operator.eq:
                 comptext = 'equal to'
@@ -231,15 +266,6 @@ class BasicProcedure(Procedure):
                 comptext = 'greater than or equal to'
             elif rule['comp'] == operator.le:
                 comptext = 'less than or equal to'
-
-            def val_to_str(data_type, val):
-                if data_type != bool:
-                    return str(val)
-                else:
-                    if val:
-                        return 'On'
-                    else:
-                        return 'Off'
 
             rulevalstr = val_to_str(rule['channel'].data_type, rule['value'])
 
