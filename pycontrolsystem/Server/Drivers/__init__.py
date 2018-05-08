@@ -22,18 +22,18 @@ driver_mapping = {'ArduinoMicro': {'driver': ArduinoDriver,
                   'RS485': {'driver': MFCDriver,
                             'baud_rate': 9600,
                             'vid_pid': (0x0403, 0x6001),
-                            'known_serials': ["A5051Z0GA"]
+                            'known_serials': ["FTJRNRWQA"]
                             },
                   'Teensy': {'driver': ArduinoDriver,
                              'baud_rate': 115200,
                              'vid_pid': (0x16C0, 0x0483),
                              'known_serials': ["3596460"]
                              },
-                  # 'FT232R': {'driver': TDKDriver,
-                  #            'baud_rate': 19200,
-                  #            'vid_pid': (0x0403, 0x6001),
-                  #            'known_serials': ["FTJRNRWQA"]
-                  #            },
+                  'FT232R': {'driver': TDKDriver,
+                              'baud_rate': 19200,
+                              'vid_pid': (0x0403, 0x6001),
+                              'known_serials': ["A5051Z0GA"]
+                              },
                   'Prolific': {'driver': REKDriver,
                                'baud_rate': 9600,
                                'vid_pid': (0x067B, 0x2303),

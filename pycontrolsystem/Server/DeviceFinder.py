@@ -104,6 +104,8 @@ class SerialDeviceFinderWindows(DeviceFinder):
         _obsolete_devices_by_ids = {}
         _added_devices_by_ids = {}
 
+        print(_device_ids)
+
         for port_info in list_ports.comports():
 
             if port_info.vid is None:
@@ -142,6 +144,9 @@ class SerialDeviceFinderWindows(DeviceFinder):
                 _obsolete_devices_by_ids[_id] = self._current_devices[_id]
 
         self._current_devices = _found_devices_by_ids
+
+        print(len(self._current_devices), len(_added_devices_by_ids), len(_obsolete_devices_by_ids))
+        print(_device_ids)
 
         return {'current': self._current_devices,
                 'added': _added_devices_by_ids,
