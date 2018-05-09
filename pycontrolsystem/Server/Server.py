@@ -1,9 +1,9 @@
-# import sys
+import sys
 from multiprocessing import Process, Pipe
 import threading
 import json
 import queue
-# import time
+import time
 from datetime import datetime
 from collections import deque
 # import logging
@@ -166,56 +166,59 @@ def serial_watchdog(com_pipe, debug, port_identifiers):
         finder_list.append(ftdi_finder)
 
     while _keep_communicating2:
+        try:
+            # Do the timing of this process:
+            _thread_start_time = time.time()
 
-        # Do the timing of this process:
-        _thread_start_time = time.time()
+            if com_pipe.poll():
+                _in_message = com_pipe.recv()
 
-        if com_pipe.poll():
-            _in_message = com_pipe.recv()
+                if _in_message[0] == "com_period":
+                    _com_period = _in_message[1]
+                elif _in_message[0] == "shutdown":
+                    break
+                elif _in_message[0] == "port_identifiers":
+                    _port_identifiers = _in_message[1]
+                    # update each finder's identifier list
+                    for finder in finder_list:
+                        finder.identifiers = _port_identifiers
+                elif _in_message[0] == "debug":
+                    _debug = _in_message[1]
 
-            if _in_message[0] == "com_period":
-                _com_period = _in_message[1]
-            elif _in_message[0] == "shutdown":
-                break
-            elif _in_message[0] == "port_identifiers":
-                _port_identifiers = _in_message[1]
-                # update each finder's identifier list
-                for finder in finder_list:
-                    finder.identifiers = _port_identifiers
-            elif _in_message[0] == "debug":
-                _debug = _in_message[1]
+            _device_added = False
+            _device_removed = False
+            _finder_info = {}
+            for finder in finder_list:
+                _finder_info[finder.name] = finder.find_devices()
+                if _finder_info[finder.name]['added'] != {}:
+                    _device_added = True
 
-        _device_added = False
-        _device_removed = False
-        _finder_info = {}
-        for finder in finder_list:
-            _finder_info[finder.name] = finder.find_devices()
-            if _finder_info[finder.name]['added'] != {}:
-                _device_added = True
+                if _finder_info[finder.name]['obsolete']:
+                    _device_removed = True
 
-            if _finder_info[finder.name]['obsolete']:
-                _device_removed = True
+            if _device_added or _device_removed:
+                # If something has changed:
+                if _debug:
+                    pass  # need to update this block
+                    # print("Updated List:")
+                    # for _key, item in _current_ports_by_ids.items():
+                    #    print ("{} #{} at port {}".format(item["identifier"], _key, item["port"]))
 
-        if _device_added or _device_removed:
-            # If something has changed:
-            if _debug:
-                pass  # need to update this block
-                # print("Updated List:")
-                # for _key, item in _current_ports_by_ids.items():
-                #    print ("{} #{} at port {}".format(item["identifier"], _key, item["port"]))
+                pipe_message = ["updated_list", _finder_info]
+                com_pipe.send(pipe_message)
 
-            pipe_message = ["updated_list", _finder_info]
-            com_pipe.send(pipe_message)
+            # Do the timing of this process:
+            _sleepy_time = _com_period - time.time() + _thread_start_time
 
-        # Do the timing of this process:
-        _sleepy_time = _com_period - time.time() + _thread_start_time
+            if _sleepy_time > 0.0:
+                if _debug:
+                    print("Watchdog alive, sleeping for {} s.".format(_sleepy_time))
 
-        if _sleepy_time > 0.0:
-            if _debug:
-                print("Watchdog alive, sleeping for {} s.".format(_sleepy_time))
-
-            time.sleep(_sleepy_time)
-
+                time.sleep(_sleepy_time)
+        except KeyboardInterrupt:
+            print("Watchdog got keyboard interrupt")
+            com_pipe.send("shutdown")
+            break
 
 # /===============================\
 # |                               |
@@ -352,9 +355,14 @@ def listen_to_pipe():
     global _devices
     global _threads
     global _ftdi_serial_port_mapping
+    global _keep_communicating
 
-    if _pipe_server.poll():
+    if _pipe_server.poll(1):
         gui_message = _pipe_server.recv()
+
+        if gui_message == 'shutdown':
+            _keep_communicating = False
+            shutdown()
 
         if gui_message[0] == "updated_list":
 
@@ -443,13 +451,25 @@ def listen_to_pipe():
         threading.Timer(0.5, listen_to_pipe).start()
 
 
+def shutdown():
+    global _keep_communicating
+
+    print("Shutting down...")
+    _keep_communicating = False
+    for key, device in _devices.items():
+        device.terminate()
+    for key, thread in _threads.items():
+        thread.join()
+
+    _pipe_server.send(["shutdown"])
+    _watch_proc.join()
+
+    sys.exit("Killed")
+
+
 if __name__ == "__main__":
     try:
         app.run(host='0.0.0.0', port=5000)
     except KeyboardInterrupt:
-        for key, device in _devices.items():
-            device.terminate()
-        for key, thread in _threads.items():
-            thread.join()
-        _pipe_server.send(["shutdown"])
-        _watch_proc.join()
+        shutdown()
+
