@@ -68,8 +68,9 @@ class DeviceManager(object):
 
     @query_message.setter
     def query_message(self, device_data):
-        self._query_device_data = device_data
-        self._query_message = self._driver.translate_gui_to_device(device_data)
+        device_id = device_data['device_id']
+        self._query_device_data[device_id] = device_data
+        self._query_message[device_id] = self._driver.translate_gui_to_device(device_data)
 
     def add_command_to_queue(self, cmd):
         self._set_command_queue.put(cmd)
@@ -94,42 +95,36 @@ class DeviceManager(object):
                     except Exception as e:
                         # print('Unable to send set message! Exception: {}'.format(e))
                         device_response = 'Error, got exception {}'.format(e)
-
-                # print('Device response was {}'.format(device_response))
-                # self._current_values = self._driver.translate_device_to_gui(device_response)
-
             else:
-                # update the device's current value
+                # update the device's current values
                 # this could take some time
                 if self._query_message is not None:
-                    # com_resp_list = [self._com.send_message(msg) \
-                    #                    for msg in self._query_message]
-                    com_resp_list = []
-                    for msg in self._query_message:
+                    for device_id, query_message in self._query_message.items():
+                        com_resp_list = []
+                        for msg in query_message:
+                            try:
+                                com_resp = self._com.send_message(msg)
+                                com_resp_list.append(com_resp)
+                            except Exception as e:
+                                com_resp_list.append(None)
+
                         try:
-                            com_resp = self._com.send_message(msg)
-                            com_resp_list.append(com_resp)
-                        except Exception as e:
-                            # print('Unable to send query message! Exception: {}'.format(e))
-                            com_resp_list.append(None)
+                            resp = self._driver.translate_device_to_gui(
+                                com_resp_list, self._query_device_data[device_id])
+                        except:
+                            continue
 
-                    try:
-                        resp = self._driver.translate_device_to_gui(
-                            com_resp_list, self._query_device_data
-                        )
-                    except:
-                        continue
+                        # add additional info to be shown in the GUI
+                        resp['timestamp'] = time.time()
+                        resp['polling_rate'] = self._polling_rate
 
-                    # add additional info to be shown in the GUI
-                    resp['timestamp'] = time.time()
-                    resp['polling_rate'] = self._polling_rate
-
-                    self._current_values = resp
+                        self._current_values[device_id] = resp
 
             t2 = datetime.now()
 
             delta = (t2 - t1).total_seconds()
 
+            # check if elapsed time is < 1/maximum polling rate. If true, sleep for the difference
             if 1.0 > self._polling_rate_max * delta:
                 time.sleep(1.0 / self._polling_rate_max - delta)
 
@@ -328,11 +323,12 @@ def query_device():
         device_id = device_id_parts[0]
 
         if len(device_id_parts) > 1:
+            device_id = device_id_parts[1]
             device_data['device_id'] = device_id_parts[1]
 
         try:
             _devices[device_id].query_message = device_data
-            devices_responses[full_device_id] = _devices[device_id].current_values
+            devices_responses[full_device_id] = _devices[device_id].current_values[device_id]
         except KeyError:
             # device not found on server
             devices_responses[full_device_id] = "ERROR: Device not found on server"
@@ -472,4 +468,3 @@ if __name__ == "__main__":
         app.run(host='0.0.0.0', port=5000)
     except KeyboardInterrupt:
         shutdown()
-
