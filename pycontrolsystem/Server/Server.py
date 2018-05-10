@@ -28,8 +28,8 @@ class DeviceManager(object):
         self._com = com
 
         # the generic query message which is sent every time the user queries the device
-        self._query_message = None
-        self._query_device_data = None  # some devices need this to translate the response back
+        self._query_message = {}
+        self._query_device_data = {}  # some devices need this to translate the response back
 
         # device's current values (response to query command)
         self._current_values = {}
@@ -327,8 +327,8 @@ def query_device():
             device_data['device_id'] = device_id_parts[1]
 
         try:
-            _devices[device_id].query_message = device_data
-            devices_responses[full_device_id] = _devices[device_id].current_values[device_id]
+            _devices[device_id_parts[0]].query_message = device_data
+            devices_responses[full_device_id] = _devices[device_id_parts[0]].current_values[device_id]
         except KeyError:
             # device not found on server
             devices_responses[full_device_id] = "ERROR: Device not found on server"
