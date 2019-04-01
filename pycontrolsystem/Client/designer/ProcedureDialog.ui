@@ -328,8 +328,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>1032</width>
-               <height>242</height>
+               <width>1044</width>
+               <height>361</height>
               </rect>
              </property>
              <layout class="QGridLayout" name="gridLayout">
@@ -895,7 +895,7 @@
         <item>
          <widget class="QCheckBox" name="chkText">
           <property name="text">
-           <string>Text</string>
+           <string>Slack</string>
           </property>
          </widget>
         </item>

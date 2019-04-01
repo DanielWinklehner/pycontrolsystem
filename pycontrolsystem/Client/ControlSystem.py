@@ -18,7 +18,7 @@ import queue
 from multiprocessing import Process, Pipe
 
 # noinspection PyPackageRequirements
-from PyQt5.QtCore import QObject, QThread, QTimer, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QObject, QThread, QTimer, pyqtSignal  # , pyqtSlot
 # noinspection PyPackageRequirements
 from PyQt5.QtWidgets import QFileDialog  # , QApplication
 
@@ -32,7 +32,7 @@ from .gui.style import dark_stylesheet
 
 from .Device import Device
 from .Channel import Channel
-from .Procedure import Procedure, BasicProcedure, PidProcedure  # , TimerProcedure
+from .Procedure import BasicProcedure, PidProcedure  # , Procedure, TimerProcedure
 from .FileOps import load_from_csv
 
 
@@ -931,7 +931,7 @@ class ControlSystem(object):
 
     # # @pyqtSlot()
     # # @pyqtSlot(Procedure)
-    def show_ProcedureDialog(self, proc=None):
+    def show_ProcedureDialog(self, dummy_bool, proc=None):
         _proceduredialog = ProcedureDialog(self._devices, self._procedures.keys(), proc)
         accept, rproc = _proceduredialog.exec_()
 

@@ -277,7 +277,7 @@
         <enum>QTabWidget::Rounded</enum>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>3</number>
        </property>
        <widget class="QWidget" name="overview">
         <attribute name="title">
@@ -317,8 +317,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>806</width>
-              <height>675</height>
+              <width>830</width>
+              <height>695</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_6">
@@ -552,8 +552,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>806</width>
-              <height>633</height>
+              <width>100</width>
+              <height>30</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_4">
@@ -632,8 +632,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>806</width>
-              <height>633</height>
+              <width>834</width>
+              <height>658</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_10">

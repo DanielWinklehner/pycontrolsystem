@@ -13,7 +13,7 @@ if __name__ == '__main__':
     app = QApplication([])
 
     # Create the control system GUI
-    cs = ControlSystem(parent_app=app, server_ip='localhost', server_port=5000, debug=False)
+    cs = ControlSystem(parent_app=app, server_ip='127.0.0.1', server_port=5000, debug=False)
     cs.run()
 
     # Wrap running the app in a sys.exit call to forward the exit signal

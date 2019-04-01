@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'designer/ProcedureDialog.ui'
+# Form implementation generated from reading ui file 'D:\Daniel\Dropbox (MIT)\Code\Python\pycontrolsystem_dev\pycontrolsystem\Client\designer\ProcedureDialog.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -135,7 +135,7 @@ class Ui_ProcedureDialog(object):
         self.scAction.setWidgetResizable(True)
         self.scAction.setObjectName("scAction")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 1032, 242))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 1044, 361))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.gridLayout = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
@@ -476,7 +476,7 @@ class Ui_ProcedureDialog(object):
         self.chkCritical.setText(_translate("ProcedureDialog", "Critical"))
         self.gbNotify.setTitle(_translate("ProcedureDialog", "Notify"))
         self.chkEmail.setText(_translate("ProcedureDialog", "Email"))
-        self.chkText.setText(_translate("ProcedureDialog", "Text"))
+        self.chkText.setText(_translate("ProcedureDialog", "Slack"))
         self.gbContact.setTitle(_translate("ProcedureDialog", "Contact Information"))
         self.lblText.setText(_translate("ProcedureDialog", "Mobile"))
         self.lblEmail.setText(_translate("ProcedureDialog", "Email"))
