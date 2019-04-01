@@ -11,8 +11,14 @@ be used in Windows from a Anaconda command prompt:
 
 `conda create --name pycontrolsystem --file spec-file.txt`
 
-_Note: If you are using Anaconda, do the following in a shell openend with the Anaconda 
-environment created for the pycontrolsystem._
+or using the __Import__ button in _Anaconda Navigator_.  
+
+_Note: If you are using Anaconda, do the following steps in a shell openend with the 
+Anaconda environment created for the pycontrolsystem._
+
+The only module not available from Anaconda is `pyusb`. Install it simply by using pip
+
+`pip install pyusb`
 
 Either use pip to install the pycontrolsystem directly from the github 
 repository
