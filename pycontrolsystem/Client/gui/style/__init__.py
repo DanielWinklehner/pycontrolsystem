@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 import platform
 
+# Noinspections necessary for PyCharm because installed PyQt5 module is just called 'pyqt'
+# noinspection PyPackageRequirements
 from PyQt5.QtCore import QFile, QTextStream
 
-import gui.style.dark_alt.style_rc
+# import .dark_alt.style_rc
+
 
 def dark_stylesheet():   
     f = QFile("gui/style/dark_alt/style.qss")

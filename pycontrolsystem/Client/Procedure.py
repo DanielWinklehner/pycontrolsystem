@@ -7,13 +7,17 @@
 import operator
 import time
 
+# Noinspections necessary for PyCharm because installed PyQt5 module is just called 'pyqt'
+# noinspection PyPackageRequirements
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QPushButton, \
-                            QGroupBox, QWidget, QTextEdit, QLineEdit
+                            QGroupBox, QTextEdit, QLineEdit  # , QWidget
+# noinspection PyPackageRequirements
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QThread
+# noinspection PyPackageRequirements, PyUnresolvedReferences
 from PyQt5.QtGui import QSizePolicy, QPixmap, QIcon
 
-from Pid import Pid
-from Timer import Timer
+from .Pid import Pid
+from .Timer import Timer
 
 
 class Procedure(QObject):

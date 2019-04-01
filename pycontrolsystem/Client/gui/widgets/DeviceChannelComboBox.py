@@ -4,12 +4,17 @@
 # Thomas Wester <twester@mit.edu>
 # Combo boxes for selecting devices and channels
 
-from PyQt5.QtWidgets import QFrame, QHBoxLayout, QComboBox, QLabel, QWidget
+# Noinspections necessary for PyCharm because installed PyQt5 module is just called 'pyqt'
+# noinspection PyPackageRequirements
+from PyQt5.QtWidgets import QHBoxLayout, QComboBox, QLabel, QWidget  # , QFrame
+# noinspection PyPackageRequirements
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
+# noinspection PyPackageRequirements, PyUnresolvedReferences
 from PyQt5.QtGui import QSizePolicy
 
-from Device import Device
-from Channel import Channel
+from ...Device import Device
+from ...Channel import Channel
+
 
 class DeviceChannelComboBox(QWidget):
 

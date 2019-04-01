@@ -5,26 +5,31 @@
 # Handles widget creation in the main window
 
 import time
-import copy
+# import copy
+# Noinspections necessary for PyCharm because installed PyQt5 module is just called 'pyqt'
+# noinspection PyPackageRequirements
 from PyQt5.QtWidgets import QMainWindow
+# noinspection PyPackageRequirements
 from PyQt5.QtWidgets import QGridLayout, QHBoxLayout, QVBoxLayout, \
-                            QGroupBox, QLineEdit, QLabel, \
-                            QRadioButton, QScrollArea, QPushButton, \
-                            QWidget, QSizePolicy, QAction, QTreeWidgetItem, \
-                            QComboBox
-from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QFont, QPixmap, QIcon
+                            QWidget, QSizePolicy, QAction, QTreeWidgetItem
+# QComboBox, QGroupBox, QLineEdit, QLabel,
+# QRadioButton, QScrollArea, QPushButton
+# noinspection PyPackageRequirements
+from PyQt5.QtCore import Qt, pyqtSignal  # , pyqtSlot
+# noinspection PyPackageRequirements
+from PyQt5.QtGui import QPixmap, QIcon  # , QFont
 
 from .ui_MainWindow import Ui_MainWindow
 from .dialogs.AboutDialog import AboutDialog
 from .dialogs.ErrorDialog import ErrorDialog
 
 from .widgets.DateTimePlotWidget import DateTimePlotWidget
-from .widgets.EntryForm import EntryForm
+# from .widgets.EntryForm import EntryForm
 
-from Device import Device
-from Channel import Channel
-from Procedure import Procedure
+from ..Device import Device
+from ..Channel import Channel
+# from pycontrolsystem.Client.Procedure import Procedure
+
 
 class MainWindow(QMainWindow):
 

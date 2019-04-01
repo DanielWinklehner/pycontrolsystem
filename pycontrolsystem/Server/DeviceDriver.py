@@ -1,4 +1,4 @@
-from Drivers import *
+from .Drivers import *
 
 
 class DeviceDriver:

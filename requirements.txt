@@ -1,3 +1,8 @@
 flask
+requests
 numpy
 pyserial
+pyqt
+pyqtgraph
+slackclient
+pyusb
