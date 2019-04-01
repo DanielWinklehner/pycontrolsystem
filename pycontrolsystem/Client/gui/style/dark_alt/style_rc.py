@@ -6,6 +6,8 @@
 #
 # WARNING! All changes made in this file will be lost!
 
+# Noinspections necessary for PyCharm because installed PyQt5 module is just called 'pyqt'
+# noinspection PyPackageRequirements
 from PyQt5 import QtCore
 
 qt_resource_data = b"\

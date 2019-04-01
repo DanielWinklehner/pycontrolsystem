@@ -1,7 +1,8 @@
 from setuptools import setup, find_packages
 
 setup(name='pycontrolsystem',
-      version='1.0.0',
+      version='1.0.1',
+      python_requires='>=3',
       description='A control system with QT-based Client and Server to control hardware (e.g. Arduino).',
       url='https://github.com/DanielWinklehner/pycontrolsystem',
       author='Thomas Wester, Daniel Winklehner',

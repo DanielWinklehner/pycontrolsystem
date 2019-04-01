@@ -4,12 +4,16 @@
 # Thomas Wester <twester@mit.edu>
 # Dialog for selecting which channels to plot
 
+# Noinspections necessary for PyCharm because installed PyQt5 module is just called 'pyqt'
+# noinspection PyPackageRequirements
 from PyQt5.QtWidgets import QDialog, QTreeWidgetItem
+# noinspection PyPackageRequirements
 from PyQt5.QtCore import Qt
 from .ui_PlotChooseDialog import Ui_PlotChooseDialog
 
-from Device import Device
-from Channel import Channel
+# from ...Device import Device
+# from ...Channel import Channel
+
 
 class PlotChooseDialog(QDialog):
 
@@ -19,14 +23,14 @@ class PlotChooseDialog(QDialog):
         self.ui.setupUi(self)
         self.ui.btnDone.clicked.connect(self.on_done_click)
 
-        self._accepted = False # true if user presses 'done' instead of closing out the window
+        self._accepted = False  # true if user presses 'done' instead of closing out the window
 
         self._device_dict = devices
         self._plotted_channels = plotted_channels
         self.update_devices()
         self._selected_channels = []
 
-        ## TODO HACK: Gets a list of device objects, assumes these are sorted to get return value
+        # TODO HACK: Gets a list of device objects, assumes these are sorted to get return value
         self._devices = []
         for devname, dev in self._device_dict.items():
             chlist = []

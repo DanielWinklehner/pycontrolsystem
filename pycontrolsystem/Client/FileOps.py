@@ -8,9 +8,9 @@
 import json
 import operator
 
-from Device import Device
-from Channel import Channel
-from Procedure import BasicProcedure, PidProcedure, TimerProcedure
+from .Device import Device
+from .Channel import Channel
+from .Procedure import BasicProcedure, PidProcedure, TimerProcedure
 
 
 def str_to_comp(compstr):

@@ -5,14 +5,17 @@
 # Dialog for creating/editing procedures
 
 import operator
-
+# Noinspections necessary for PyCharm because installed PyQt5 module is just called 'pyqt'
+# noinspection PyPackageRequirements
 from PyQt5.QtWidgets import QDialog, QFrame, QLabel, QPushButton, QVBoxLayout, \
                             QHBoxLayout
+# noinspection PyPackageRequirements
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
 from .ui_ProcedureDialog import Ui_ProcedureDialog
-from Procedure import Procedure, BasicProcedure, PidProcedure, TimerProcedure
-from gui.widgets.DeviceChannelComboBox import DeviceChannelComboBox
+from ...Procedure import BasicProcedure, PidProcedure, TimerProcedure  # , Procedure
+from ...gui.widgets.DeviceChannelComboBox import DeviceChannelComboBox
+
 
 class ProcedureDialog(QDialog):
 

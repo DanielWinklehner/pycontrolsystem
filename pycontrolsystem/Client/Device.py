@@ -6,15 +6,19 @@
 # Device representation class
 
 import json
-import time
-import threading
+# import time
+# import threading
 
+# Noinspections necessary for PyCharm because installed PyQt5 module is just called 'pyqt'
+# noinspection PyPackageRequirements
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, \
         QGroupBox, QLabel, QFrame
+# noinspection PyPackageRequirements
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject
 
-from Channel import Channel
-from gui.widgets.EntryForm import EntryForm
+from .Channel import Channel
+from .gui.widgets.EntryForm import EntryForm
+
 
 class DeviceWidget(QWidget):
 

@@ -6,16 +6,18 @@
 # Channel representation class
 
 import json
-import datetime
+# import datetime
 from collections import deque
-
+# Noinspections necessary for PyCharm because installed PyQt5 module is just called 'pyqt'
+# noinspection PyPackageRequirements
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QGroupBox, \
-    QLabel, QRadioButton, QLineEdit, QPushButton, QDial
+    QLabel, QRadioButton, QLineEdit, QPushButton  # , QDial
+# noinspection PyPackageRequirements
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject
 
-from gui.widgets.DateTimePlotWidget import DateTimePlotWidget
-from gui.widgets.EntryForm import EntryForm
-from gui.widgets.ChannelDial import ChannelDial
+from .gui.widgets.DateTimePlotWidget import DateTimePlotWidget
+from .gui.widgets.EntryForm import EntryForm
+from .gui.widgets.ChannelDial import ChannelDial
 
 
 class ChannelWidget(QGroupBox):

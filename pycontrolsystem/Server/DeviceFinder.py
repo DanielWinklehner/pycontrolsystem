@@ -4,6 +4,9 @@
 import subprocess
 import usb.core
 import platform
+
+# Necessary for PyCharm because package name is 'pyserial' and import is 'serial'
+# noinspection PyPackageRequirements
 from serial.tools import list_ports
 
 myplatform = platform.platform()
@@ -205,8 +208,9 @@ class FTDIDeviceFinder(DeviceFinder):
         # Now, let's check if there are any devices still left in the id list
         if len(_device_ids) > 0:
             _device_removed = True
-            for id in _device_ids:
-                _obsolete_devices_by_ids[id] = self._current_devices[id]  # These SerialCOM objects have to be destroyed
+            for _id in _device_ids:
+                # These SerialCOM objects have to be destroyed
+                _obsolete_devices_by_ids[_id] = self._current_devices[_id]
 
         self._current_devices = _found_devices_by_ids
 

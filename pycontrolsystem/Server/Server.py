@@ -3,7 +3,7 @@ from multiprocessing import Process, Pipe
 import threading
 import json
 import queue
-import time
+# import time
 from datetime import datetime
 from collections import deque
 # import logging
@@ -11,9 +11,10 @@ from collections import deque
 from flask import Flask, request
 import numpy as np
 
-from DeviceDriver import driver_mapping
-from SerialCOM import *
-from DeviceFinder import *
+from .DeviceDriver import driver_mapping
+from .SerialCOM import *
+from .DeviceFinder import *
+
 
 if 'Windows' not in myplatform:
     from ftd2xx.ftd2xx import DeviceError
@@ -221,6 +222,7 @@ def serial_watchdog(com_pipe, debug, port_identifiers):
 # |                               |
 # \===============================/
 
+
 app = Flask(__name__)
 
 # disable flask output messages (makes server easier to debug)
@@ -290,10 +292,10 @@ def set_value_on_device():
 
     # set_cmd['device_id'] = old_device_id
 
-    if _mydebug:
-        print("The message to the device is: {}".format(msg))
-
     '''
+    if _mydebug:
+        print("The message to the device is: {}".format(msg)
+              
     try:
         print(msg)
         for cmd in msg:

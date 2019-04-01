@@ -6,13 +6,15 @@
 
 import datetime
 
+# Noinspections necessary for PyCharm because installed PyQt5 module is just called 'pyqt'
+# noinspection PyPackageRequirements
 from PyQt5.QtWidgets import QDialog, QColorDialog
+# noinspection PyPackageRequirements
 from PyQt5.QtGui import QColor
 from .ui_PlotSettingsDialog import Ui_PlotSettingsDialog
 
-from Channel import Channel
-
-import pyqtgraph as pg
+# from ...Channel import Channel
+# import pyqtgraph as pg
 
 class PlotSettingsDialog(QDialog):
 

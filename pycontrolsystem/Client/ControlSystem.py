@@ -1,42 +1,43 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Thomas Wester <twester@mit.edu>
+# Thomas Wester <twester@mit.edu> (2017 - 2018)
+# Daniel Winklehner <winklehn@mit.edu> (2018 - )
 #
 # Code adapted from MIST1ControlSystem.py (Python 2/gtk3+ version)
+# import sys
 
-import sys
-import os
+# import os
 import requests
 import json
 import timeit
 import time
 import threading
 import queue
-import operator
+# import operator
 from multiprocessing import Process, Pipe
 
+# noinspection PyPackageRequirements
 from PyQt5.QtCore import QObject, QThread, QTimer, pyqtSignal, pyqtSlot
-from PyQt5.QtWidgets import QApplication, QFileDialog
+# noinspection PyPackageRequirements
+from PyQt5.QtWidgets import QFileDialog  # , QApplication
 
-from gui import MainWindow
+from .gui import MainWindow
+from .gui.dialogs.PlotChooseDialog import PlotChooseDialog
+from .gui.dialogs.PlotSettingsDialog import PlotSettingsDialog
+from .gui.dialogs.ProcedureDialog import ProcedureDialog
+from .gui.dialogs.ErrorDialog import ErrorDialog
+from .gui.dialogs.WarningDialog import WarningDialog
+from .gui.style import dark_stylesheet
 
-from gui.dialogs.PlotChooseDialog import PlotChooseDialog
-from gui.dialogs.PlotSettingsDialog import PlotSettingsDialog
-from gui.dialogs.ProcedureDialog import ProcedureDialog
-from gui.dialogs.ErrorDialog import ErrorDialog
-from gui.dialogs.WarningDialog import WarningDialog
-
-from gui.style import dark_stylesheet
-
-from Device import Device
-from Channel import Channel
-from Procedure import Procedure, BasicProcedure, PidProcedure, TimerProcedure
-from FileOps import load_from_csv
+from .Device import Device
+from .Channel import Channel
+from .Procedure import Procedure, BasicProcedure, PidProcedure  # , TimerProcedure
+from .FileOps import load_from_csv
 
 
 def query_server(com_pipe, server_url, debug=False):
-    """ Sends info from RasPi server to communicator pipe """
+    """ Sends info from server to communicator pipe """
     _keep_communicating = True
     _com_period = 5.0
     _device_dict_list = None
@@ -62,19 +63,27 @@ def query_server(com_pipe, server_url, debug=False):
             _data = {'data': json.dumps(_device_dict_list)}
 
             try:
+
                 _r = requests.post(_url, data=_data)
                 timestamp = time.time()
                 _response_code = _r.status_code
+
             except Exception as e:
+
                 if debug:
-                    print("Exception '{}' caught while communicating with RasPi server.".format(e))
+                    print("Exception '{}' caught while communicating with server.".format(e))
+
                 continue
 
             if _response_code == 200:
+
                 _response = _r.text
+
                 if debug:
+
                     print("The response was: {}".format(json.loads(_response)))
             else:
+
                 if debug:
                     print("Response code was not 200: {}".format(_response_code))
                 continue
@@ -102,10 +111,9 @@ def query_server(com_pipe, server_url, debug=False):
         # Do the timing of this process:
         _sleepy_time = _com_period - timeit.default_timer() + _thread_start_time
 
-        # if debug:
-        # print("Sleeping for {} s".format(_sleepy_time))
-
         if _sleepy_time > 0.0:
+            # if debug:
+            #     print("Sleeping for {} s".format(_sleepy_time))
             time.sleep(_sleepy_time)
 
 
@@ -118,9 +126,10 @@ class Communicator(QObject):
     sig_poll_rate = pyqtSignal(float)
     sig_device_info = pyqtSignal(dict)
 
-    def __init__(self, pipe):
+    def __init__(self, pipe, parent_app):
         super().__init__()
         self._pipe = pipe
+        self._app = parent_app  # reference to main QApplication
         self._terminate = False
         self._keep_communicating = True
 
@@ -142,7 +151,7 @@ class Communicator(QObject):
     def pipe(self):
         return self._pipe
 
-    @pyqtSlot()
+    # @pyqtSlot()
     def communicate(self):
         while True:
             if self._keep_communicating:
@@ -160,7 +169,7 @@ class Communicator(QObject):
                     self._pipe.send(message)
                     self._message_queue.task_done()
 
-                app.processEvents()
+                self._app.processEvents()
 
                 if self._terminate:
                     break
@@ -178,7 +187,13 @@ class Communicator(QObject):
 
 class ControlSystem(object):
 
-    def __init__(self, server_ip='127.0.0.1', server_port=80, debug=False):
+    def __init__(self, parent_app, server_ip='127.0.0.1', server_port=80, debug=False):
+
+        # Store reference to 'parent' QApplication and set some parameters
+        self._app = parent_app
+        self._app.setStyleSheet(dark_stylesheet())  # Looks cool
+        self._app.aboutToQuit.connect(self.on_quit_button) # connect the closing event to the quit button procedure
+
         # --- Set up Qt UI and connect UI signals --- #
         self._window = MainWindow.MainWindow()
 
@@ -213,6 +228,7 @@ class ControlSystem(object):
                 print('[Error initializing server] {}: {}'.format(r.status_code, r.text))
         except Exception as e:
             print('Exception was: {}'.format(e))
+            print("Did you start the server first? Do you have the correct IP address?")
             exit()
 
         # --- Get devices connected to server --- #
@@ -257,11 +273,11 @@ class ControlSystem(object):
         self._pipe_gui, pipe_server = Pipe()
 
         self._com_process = Process(target=query_server,
-                                    args=(pipe_server, self._server_url, False,))
+                                    args=(pipe_server, self._server_url, self.debug,))
 
         self._keep_communicating = True
 
-        self._communicator = Communicator(self._pipe_gui)
+        self._communicator = Communicator(self._pipe_gui, self._app)
         self._communicator.moveToThread(self._com_thread)
         self._com_thread.started.connect(self._communicator.communicate)
         self._communicator.sig_status.connect(self.on_communicator_status)
@@ -305,17 +321,17 @@ class ControlSystem(object):
         except AttributeError:
             pass
 
-    @pyqtSlot(str)
+    # @pyqtSlot(str)
     def on_communicator_status(self, data: str):
         """ update status bar with thread message """
         self._window.status_message(data)
 
-    @pyqtSlot(float)
+    # @pyqtSlot(float)
     def on_communicator_poll_rate(self, data: float):
         """ update polling rate in GUI """
         self._window.set_polling_rate('{0:.2f}'.format(data))
 
-    @pyqtSlot(dict)
+    # @pyqtSlot(dict)
     def on_communicator_device_info(self, data: dict):
         """ Read in message from the server, and update devices accordingly """
         parsed_response = data
@@ -367,7 +383,7 @@ class ControlSystem(object):
                 #     if self.debug:
                 #         print("Exception '{}' caught while trying to log data.".format(e))
 
-    @pyqtSlot()
+    # @pyqtSlot()
     def device_or_channel_changed(self):
         """ Sends a device changed request to the pipe """
         device_dict_list = [{
@@ -396,7 +412,7 @@ class ControlSystem(object):
         except AttributeError:
             pass
 
-    @pyqtSlot(Channel, object)
+    # @pyqtSlot(Channel, object)
     def set_value_callback(self, channel, val):
         """ Creates a SET message to send to server """
         # values = None
@@ -439,7 +455,7 @@ class ControlSystem(object):
             self.device_or_channel_changed()
 
     def update_device_on_server(self, _data):
-        """ Sends POST request to RasPi server with new device/channel info """
+        """ Sends POST request to server with new device/channel info """
         _url = self._server_url + "device/set"
         try:
             _data = {'data': json.dumps(_data)}
@@ -482,7 +498,7 @@ class ControlSystem(object):
             if procedure.should_perform_procedure():
                 procedure.do_actions()
 
-    @pyqtSlot(object)
+    # # @pyqtSlot(object)
     def connect_device_channel_entry_form(self, obj):
         """ Connects the new object's save and delete signals to the control system """
         try:
@@ -497,7 +513,7 @@ class ControlSystem(object):
             pass
         obj.sig_delete.connect(self.on_device_channel_delete)
 
-    @pyqtSlot(object)
+    # # @pyqtSlot(object)
     def on_device_channel_delete(self, obj):
         for procedure_name, procedure in self._procedures.items():
             used_devices, used_channels = procedure.devices_channels_used()
@@ -519,7 +535,7 @@ class ControlSystem(object):
             self.device_or_channel_changed()
         print(obj)
 
-    @pyqtSlot(object, dict)
+    # @pyqtSlot(object, dict)
     def on_device_channel_changed(self, obj, vals):
         """ Called when user presses Save Changes button on the settings page.
             Gets passed an old device/channel and new values, or a new
@@ -667,7 +683,7 @@ class ControlSystem(object):
         self._window.update_plots(self._devices, self._plotted_channels)
         self._window.update_procedures(self._procedures)
 
-    @pyqtSlot()
+    # # @pyqtSlot()
     def on_start_pause_click(self):
         btn = self._window.ui.btnStartPause
         if btn.text() == 'Start Polling':
@@ -688,7 +704,7 @@ class ControlSystem(object):
             self._plot_timer.start(50)
             btn.setText('Pause Polling')
 
-    @pyqtSlot()
+    # # @pyqtSlot()
     def on_stop_click(self):
         self._plot_timer.stop()
         self.shutdown_communication_threads()
@@ -708,7 +724,7 @@ class ControlSystem(object):
         # self._plotted_channels = {}
         # self.update_gui_devices()
 
-    @pyqtSlot()
+    # @pyqtSlot()
     def update_value_displays(self):
         """ This function is called by a QTimer to ensure the GUI has a chance
             to get input. Handles updating of 'read' values on the overview
@@ -741,11 +757,14 @@ class ControlSystem(object):
                     channel._plot_curve.setData(channel.x_values, channel.y_values,
                                                 clear=True, _callsync='off')
 
-        app.processEvents()
+        self._app.processEvents()
 
     def reset_pinned_plot_callback(self):
-        x = self._window._gbpinnedplot.layout().itemAt(0).widget()
-        x.settings = self._pinned_channel.plot_settings
+
+        if self._pinned_channel is not None:
+
+            x = self._window._gbpinnedplot.layout().itemAt(0).widget()
+            x.settings = self._pinned_channel.plot_settings
 
     def set_pinned_plot_callback(self, device, channel):
         """ Set the pinned plot when a user pressed the plot's pin button """
@@ -758,7 +777,7 @@ class ControlSystem(object):
         x.settings = channel.plot_settings
         self._window._gbpinnedplot.setTitle('{}.{}'.format(device.label, channel.label))
 
-    @pyqtSlot(Channel)
+    # @pyqtSlot(Channel)
     def set_plot_settings_callback(self, ch):
         """ Show the plot settings dialog when the user presses the plot's setting button """
         rng = ch._plot_widget.view_range
@@ -770,7 +789,7 @@ class ControlSystem(object):
         _plotsettingsdialog = PlotSettingsDialog(ch)
         _plotsettingsdialog.exec_()
 
-    @pyqtSlot()
+    # # @pyqtSlot()
     def on_quit_button(self):
         # shut down communication threads
         self.shutdown_communication_threads()
@@ -840,7 +859,7 @@ class ControlSystem(object):
 
         self.on_save_button()
 
-    @pyqtSlot()
+    # # @pyqtSlot()
     def on_load_button(self):
         successes = 0
 
@@ -874,7 +893,7 @@ class ControlSystem(object):
             self.update_gui_devices()
             self._window.status_message('Loaded {} devices from JSON.'.format(successes))
 
-    @pyqtSlot()
+    # # @pyqtSlot()
     def show_PlotChooseDialog(self):
         _plotchoosedialog = PlotChooseDialog(self._devices, self._plotted_channels)
         accept, chs = _plotchoosedialog.exec_()
@@ -895,7 +914,6 @@ class ControlSystem(object):
                 f = lambda: procedure.do_actions()
                 self._window.ui.btnStop.clicked.connect(f)
                 self._emergency_stop_signals[procedure.name] = f
-
         procedure.initialize()
 
     def edit_procedure(self, proc):
@@ -907,13 +925,13 @@ class ControlSystem(object):
             if proc.triggertype == 'emstop':
                 self._window.ui.btnStop.clicked.disconnect(self._emergency_stop_signals[proc.name])
                 del self._emergency_stop_signals[proc.name]
-
+      
         del self._procedures[proc.name]
         self._window.update_procedures(self._procedures)
 
-    @pyqtSlot()
-    @pyqtSlot(Procedure)
-    def show_ProcedureDialog(self, btnbool, proc=None):
+    # # @pyqtSlot()
+    # # @pyqtSlot(Procedure)
+    def show_ProcedureDialog(self, proc=None):
         _proceduredialog = ProcedureDialog(self._devices, self._procedures.keys(), proc)
         accept, rproc = _proceduredialog.exec_()
 
@@ -925,7 +943,7 @@ class ControlSystem(object):
             self.add_procedure(rproc)
             self._window.update_procedures(self._procedures)
 
-    @pyqtSlot()
+    # @pyqtSlot()
     def show_ErrorDialog(self, error_message='Error'):
         _errordialog = ErrorDialog(error_message)
         _errordialog.exec_()
@@ -959,22 +977,20 @@ class ControlSystem(object):
 # ---- End control system class ---- #
 
 
-if __name__ == '__main__':
-
-    app = QApplication([])
-    app.setStyleSheet(dark_stylesheet())
-
-    # cs = ControlSystem(server_ip='10.77.0.2', server_port=5000, debug=False)
-    # cs = ControlSystem(server_ip='127.0.0.1', server_port=5000, debug=False)
-    # cs = ControlSystem(server_ip='10.77.0.222', server_port=5000, debug=False)
-    # cs = ControlSystem(server_ip='10.77.0.4', server_port=5000, debug=False)
-    cs = ControlSystem(server_ip='10.77.0.6', server_port=5000, debug=False)
-
-
-    # connect the closing event to the quit button procedure
-    app.aboutToQuit.connect(cs.on_quit_button)
-
-    # mydebug = False
-
-    cs.run()
-    sys.exit(app.exec_())
+# if __name__ == '__main__':
+#     pass
+#     app = QApplication([])
+#     app.setStyleSheet(dark_stylesheet())
+#
+#     # cs = ControlSystem(server_ip='10.77.0.2', server_port=5000, debug=False)
+#     # cs = ControlSystem(server_ip='127.0.0.1', server_port=5000, debug=False)
+#     # cs = ControlSystem(server_ip='10.77.0.222', server_port=5000, debug=False)
+#     cs = ControlSystem(server_ip='10.77.0.6', server_port=5000, debug=False)
+#
+#     # connect the closing event to the quit button procedure
+#     app.aboutToQuit.connect(cs.on_quit_button)
+#
+#     # mydebug = False
+#
+#     cs.run()
+#     sys.exit(app.exec_())
