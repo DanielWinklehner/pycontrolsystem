@@ -9,7 +9,6 @@
 
 # import os
 import requests
-import urllib3
 import json
 import timeit
 import time
@@ -65,7 +64,7 @@ def query_server(com_pipe, server_url, debug=False):
 
             try:
 
-                _r = requests.post(_url, data=_data, headers={'Connection': 'close'})
+                _r = requests.post(_url, data=_data)
                 timestamp = time.time()
                 _response_code = _r.status_code
 
@@ -113,8 +112,8 @@ def query_server(com_pipe, server_url, debug=False):
         _sleepy_time = _com_period - timeit.default_timer() + _thread_start_time
 
         if _sleepy_time > 0.0:
-            if debug:
-                print("Sleeping for {} s".format(_sleepy_time))
+            # if debug:
+            #     print("Sleeping for {} s".format(_sleepy_time))
             time.sleep(_sleepy_time)
 
 
@@ -255,6 +254,7 @@ class ControlSystem(object):
         self._devices = {}
         self._procedures = {}
         self._critical_procedures = {}
+        self._emergency_stop_signals = {}
         self._plotted_channels = []
         self._locked_devices = []
 
@@ -909,13 +909,23 @@ class ControlSystem(object):
 
         if isinstance(procedure, BasicProcedure):
             procedure.set_signal.connect(self.set_value_callback)
-
+            # connect emergency stop button signal
+            if procedure.triggertype == 'emstop':
+                f = lambda: procedure.do_actions()
+                self._window.ui.btnStop.clicked.connect(f)
+                self._emergency_stop_signals[procedure.name] = f
         procedure.initialize()
 
     def edit_procedure(self, proc):
         self.show_ProcedureDialog(False, proc=proc)
 
     def delete_procedure(self, proc):
+        # unbind PyQtSlot from emergency stop button signal
+        if isinstance(proc, BasicProcedure):
+            if proc.triggertype == 'emstop':
+                self._window.ui.btnStop.clicked.disconnect(self._emergency_stop_signals[proc.name])
+                del self._emergency_stop_signals[proc.name]
+      
         del self._procedures[proc.name]
         self._window.update_procedures(self._procedures)
 

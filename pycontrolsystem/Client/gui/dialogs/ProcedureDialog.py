@@ -43,7 +43,7 @@ class ProcedureDialog(QDialog):
         self.initialize()
 
     def initialize(self):
-        self.ui.cbEvent.addItems(['Start up', 'Shut down', 
+        self.ui.cbEvent.addItems(['Start up', 'Shut down',
                                   'Emergency shut down'])
 
         # set up UI elements
@@ -86,12 +86,12 @@ class ProcedureDialog(QDialog):
 
         # pid device/channel selectors -- channels must be floats
         self._cbDevChPidRead = DeviceChannelComboBox(
-                self._devdict, channel_params = {'mode': ('read','both'), 
+                self._devdict, channel_params = {'mode': ('read','both'),
                                                  'data_type': (float,)
                                                  })
 
         self._cbDevChPidWrite = DeviceChannelComboBox(
-                self._devdict, channel_params = {'mode': ('write','both'), 
+                self._devdict, channel_params = {'mode': ('write','both'),
                                                  'data_type': (float,)
                                                  })
 
@@ -283,11 +283,11 @@ class ProcedureDialog(QDialog):
                 value = True
             else:
                 value = False
-            
+
         index = len(self._actions)
 
         fm = QFrame()
-        
+
         vbox = QVBoxLayout()
         lblDevCh = QLabel(channel.parent_device.label + '.' + channel.label)
         if channel.data_type != bool:
@@ -322,10 +322,10 @@ class ProcedureDialog(QDialog):
         self.ui.cbActionBool.hide()
         self.ui.txtActionVal.show()
 
-        self._actions[index] = {'device' : channel.parent_device, 
+        self._actions[index] = {'device' : channel.parent_device,
                                 'channel' : channel, 'value' : value,
                                 'delay': delay}
-        self._actioncontrols[index] = {'button' : btnDel, 'frame' : fm, 
+        self._actioncontrols[index] = {'button' : btnDel, 'frame' : fm,
                                        'label' : lblNum, 'layout' : hbox}
 
     def on_delete_action_click(self, index):
@@ -337,10 +337,10 @@ class ProcedureDialog(QDialog):
         # e.g. in list of 0,1,2,3 -> Delete 1 -> shift 2 to 1, 3 to 2
         newactions = {}
         newactioncontrols = {}
-        
+
         actionlist = [action for idx, action in sorted(self._actions.items(), key=lambda t: int(t[0]))]
         actioncontrollist = [controls for idx, controls in sorted(self._actioncontrols.items(), key=lambda t: int(t[0]))]
-        
+
         # get rid of the pesky old-indexed buttons
         for control in actioncontrollist:
             control['button'].deleteLater()
@@ -349,7 +349,7 @@ class ProcedureDialog(QDialog):
         for i, action in enumerate(actionlist):
             # fill shifted lists
             newactions[i] = action
-            
+
             controls = actioncontrollist[i]
             controls['label'].setText(str(i + 1) + '. ')
             btnDel = QPushButtonX('Delete', i)
@@ -443,52 +443,60 @@ class ProcedureDialog(QDialog):
                 self.ui.gbContact.hide()
 
     def validate_basic_procedure(self):
-        channel = self._cbDevChRule.selected_channel
-        if channel is None:
-            return False
+        triggertype = ''
+        if self.ui.cbEvent.isEnabled():
+            if self.ui.cbEvent.currentText() == 'Emergency shut down':
+                triggertype = 'emstop'
+                rule = {}
 
-        if channel.data_type != bool:
-            try:
-                value = channel.data_type(self.ui.txtRuleVal.text())
-            except:
-                print('Error: Bad value for Rule')
+        if triggertype == '':
+            channel = self._cbDevChRule.selected_channel
+            if channel is None:
                 return False
-        else:
-            if self.ui.cbRuleBool.currentText() == 'On':
-                value = True
+
+            if channel.data_type != bool:
+                try:
+                    value = channel.data_type(self.ui.txtRuleVal.text())
+                except:
+                    print('Error: Bad value for Rule')
+                    return False
             else:
-                value = False
+                if self.ui.cbRuleBool.currentText() == 'On':
+                    value = True
+                else:
+                    value = False
 
-        if channel.data_type != bool:
-            comptext = self.ui.cbRuleCompare.currentText()
-            if comptext == '=':
+            if channel.data_type != bool:
+                comptext = self.ui.cbRuleCompare.currentText()
+                if comptext == '=':
+                    comp = operator.eq
+                elif comptext == '>':
+                    comp = operator.gt
+                elif comptext == '<':
+                    comp = operator.lt
+                elif comptext == '>=':
+                    comp = operator.ge
+                elif comptext == '<=':
+                    comp = operator.le
+            else:
                 comp = operator.eq
-            elif comptext == '>':
-                comp = operator.gt
-            elif comptext == '<':
-                comp = operator.lt
-            elif comptext == '>=':
-                comp = operator.ge
-            elif comptext == '<=':
-                comp = operator.le
-        else:
-            comp = operator.eq
 
 
-        rule = {'1' : {'device' : channel.parent_device, 
-                       'channel' : channel, 'value' : value,'comp' : comp}}
+            rule = {'1' : {'device' : channel.parent_device,
+                           'channel' : channel, 'value' : value,'comp' : comp}}
 
-        self._newproc = BasicProcedure(self.ui.txtProcedureName.text(), 
-                                       rule, self._actions, 
-                                       self.ui.chkCritical.isChecked(), 
-                                       self.ui.txtEmail.text(), 
-                                       self.ui.txtText.text())
+        self._newproc = BasicProcedure(self.ui.txtProcedureName.text(),
+                                       rule, self._actions,
+                                       critical=self.ui.chkCritical.isChecked(),
+                                       triggertype=triggertype,
+                                       email=self.ui.txtEmail.text(),
+                                       sms=self.ui.txtText.text())
 
         print('Created new procedure:')
         print(self._newproc)
 
         return True
-    
+
     def validate_pid_procedure(self):
         readchannel = self._cbDevChPidRead.selected_channel
         writechannel = self._cbDevChPidWrite.selected_channel
