@@ -4,6 +4,9 @@
 Python-based control system with QT-based GUI class and separate server class to
 talk to peripheral devices like Arduino, Teensy, power supplies, etc.
 
+__Warning: As of right now, this is only tested in Windows 10. It should work on Linux
+distributions, but we will have to test it further before claiming that.__
+
 ## Installation
 The _spec-file.txt_ in the root folder contains an Anaconda environment with all
 the dependencies of the pycontrolsystem. After installing Anaconda3, the following can
