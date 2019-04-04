@@ -30,7 +30,7 @@ class ProcedureDialog(QDialog):
         self._devlist = [x for name, x in self._devdict.items()]
         self._actions = {}
         self._actioncontrols = {}
-        self._procnames = procnames # need this to check that we don't add two procedures of the same name
+        self._procnames = procnames  # need this to check that we don't add two procedures of the same name
 
         # if proc = None, assume this is for a new procedure
         # else, we are editing a procedure
@@ -63,6 +63,7 @@ class ProcedureDialog(QDialog):
         self.ui.btnAddAction.clicked.connect(self.on_add_action_click)
         self.ui.chkEmail.stateChanged.connect(self.on_email_check_changed)
         self.ui.chkText.stateChanged.connect(self.on_text_check_changed)
+        self.ui.chkSlack.stateChanged.connect(self.on_slack_check_changed)
         self.ui.rbValue.toggled.connect(self.on_value_toggled)
         self.ui.rbEvent.toggled.connect(self.on_event_toggled)
 
@@ -103,10 +104,10 @@ class ProcedureDialog(QDialog):
 
         # timer device/channel selectors
         self._cbDevChTimerStart = DeviceChannelComboBox(
-                self._devdict, channel_params = {'mode': ('read','both')})
+                self._devdict, channel_params={'mode': ('read', 'both')})
 
         self._cbDevChTimerStop = DeviceChannelComboBox(
-                self._devdict, channel_params = {'mode': ('read','both')})
+                self._devdict, channel_params={'mode': ('read', 'both')})
 
         self.ui.gbTimerStart.layout().addWidget(self._cbDevChTimerStart, 0, 1)
         self.ui.gbTimerStop.layout().addWidget(self._cbDevChTimerStop, 0, 1)
@@ -116,22 +117,33 @@ class ProcedureDialog(QDialog):
         self._cbDevChTimerStop.channel_changed_signal.connect(
                 self.on_timer_stop_channel_cb_changed)
 
-        if self._newproc != None:
+        if self._newproc is not None:
+
             self.ui.txtProcedureName.setText(self._newproc.name)
+
             if isinstance(self._newproc, BasicProcedure):
                 self.ui.tab_2.setParent(None)
                 self.ui.tab_3.setParent(None)
                 self.initialize_basic_procedure()
+
             elif isinstance(self._newproc, PidProcedure):
                 self.ui.tab.setParent(None)
                 self.ui.tab_3.setParent(None)
                 self.initialize_pid_procedure()
+
             elif isinstance(self._newproc, TimerProcedure):
                 self.ui.tab.setParent(None)
                 self.ui.tab_2.setParent(None)
                 self.initialize_timer_procedure()
 
     def initialize_basic_procedure(self):
+        # First set the radiobutton for the triggering event
+        # self.ui.cbEvent.isEnabled()
+        trigger = self._newproc.triggertype
+        if trigger == 'emstop':
+            self.ui.rbEvent.setChecked(True)
+            self.ui.cbEvent.setCurrentText("Emergency shut down")
+
         for idx, rule in self._newproc.rules.items():
             # TODO: currently only works with 1 rule
             self._cbDevChRule.select(rule['channel'])
@@ -191,6 +203,13 @@ class ProcedureDialog(QDialog):
             self.ui.lblText.show()
             self.ui.txtText.show()
             self.ui.txtText.setText(self._newproc.sms)
+
+        # Handling of Legacy Procedures
+        try:
+            if self._newproc.notifications["slack"]:
+                self.ui.chkSlack.toggle()
+        except Exception as e:
+            print("Exception {} happened, probably a procedure from before slack support was loaded".format(e))
 
     def initialize_pid_procedure(self):
         # Get write device/channel
@@ -430,8 +449,8 @@ class ProcedureDialog(QDialog):
             if not self.ui.chkText.isChecked():
                 self.ui.gbContact.hide()
 
-    def on_text_check_changed(self, isChecked):
-        if isChecked:
+    def on_text_check_changed(self, is_checked):
+        if is_checked:
             self.ui.gbContact.show()
             self.ui.txtText.show()
             self.ui.lblText.show()
@@ -442,12 +461,19 @@ class ProcedureDialog(QDialog):
             if not self.ui.chkEmail.isChecked():
                 self.ui.gbContact.hide()
 
+    def on_slack_check_changed(self, is_checked):
+        pass
+
     def validate_basic_procedure(self):
+
         triggertype = ''
         if self.ui.cbEvent.isEnabled():
             if self.ui.cbEvent.currentText() == 'Emergency shut down':
                 triggertype = 'emstop'
                 rule = {}
+            else:
+                print("Startup and Shutdown Procedures not yet implemented!")
+                return False
 
         if triggertype == '':
             channel = self._cbDevChRule.selected_channel
@@ -481,19 +507,21 @@ class ProcedureDialog(QDialog):
             else:
                 comp = operator.eq
 
+            rule = {'1': {'device': channel.parent_device,
+                          'channel': channel, 'value': value, 'comp': comp}}
 
-            rule = {'1' : {'device' : channel.parent_device,
-                           'channel' : channel, 'value' : value,'comp' : comp}}
+        # Notifications (only slack activated for now)
+        notify = {"email": self.ui.chkEmail.isChecked(),
+                  "sms": self.ui.chkText.isChecked(),
+                  "slack": self.ui.chkSlack.isChecked()}
 
         self._newproc = BasicProcedure(self.ui.txtProcedureName.text(),
                                        rule, self._actions,
                                        critical=self.ui.chkCritical.isChecked(),
                                        triggertype=triggertype,
                                        email=self.ui.txtEmail.text(),
-                                       sms=self.ui.txtText.text())
-
-        print('Created new procedure:')
-        print(self._newproc)
+                                       sms=self.ui.txtText.text(),
+                                       notifications=notify)
 
         return True
 
@@ -559,7 +587,8 @@ class ProcedureDialog(QDialog):
         return True
 
     def on_done_click(self):
-        if self._newproc == None and self.ui.txtProcedureName.text() in self._procnames:
+
+        if self._newproc is None and self.ui.txtProcedureName.text() in self._procnames:
             # if self._newproc is not None, then we are editing a procedure, so ok to overwrite
             print('Error: Procedure name already in use')
             return
@@ -577,9 +606,14 @@ class ProcedureDialog(QDialog):
             self._accepted = True
             self.accept()
 
+        else:
+            print('Error: Procedure could not be validated!')
+            return
+
     def exec_(self):
         super(ProcedureDialog, self).exec_()
         return self._accepted, self._newproc
+
 
 class QPushButtonX(QPushButton):
     """ QPushButton which returns its index """

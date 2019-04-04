@@ -887,6 +887,9 @@
        <layout class="QHBoxLayout" name="horizontalLayout_6">
         <item>
          <widget class="QCheckBox" name="chkEmail">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Email</string>
           </property>
@@ -894,6 +897,16 @@
         </item>
         <item>
          <widget class="QCheckBox" name="chkText">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Mobile</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="chkSlack">
           <property name="text">
            <string>Slack</string>
           </property>

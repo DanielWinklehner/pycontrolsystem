@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'designer/AboutDialog.ui'
+# Form implementation generated from reading ui file 'AboutDialog.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -63,6 +63,6 @@ class Ui_AboutDialog(object):
     def retranslateUi(self, AboutDialog):
         _translate = QtCore.QCoreApplication.translate
         AboutDialog.setWindowTitle(_translate("AboutDialog", "About"))
-        self.label.setText(_translate("AboutDialog", "<html><head/><body><p><span style=\" font-size:14pt; font-weight:600;\">ControlSystem.py</span></p><p><a href=\"https://github.com/DanielWinklehner/Ion-Source-Control-System\"><span style=\" font-size:10pt; text-decoration: underline; color:#0000ff;\">https://github.com/DanielWinklehner/Ion-Source-Control-System</span></a></p><p><span style=\" font-size:10pt;\">Control System software for the MIST-1 test beam at MIT</span></p><p><span style=\" font-size:10pt;\">Written for Python 3/PyQt5/PyQtGraph</span></p></body></html>"))
+        self.label.setText(_translate("AboutDialog", "<html><head/><body><p><span style=\" font-size:14pt; font-weight:600;\">ControlSystem.py</span></p><p><a href=https://github.com/DanielWinklehner/pycontrolsystem\"><span style=\" font-size:10pt; text-decoration: underline; color:#3399ff;\">https://github.com/DanielWinklehner/pycontrolsystem</span></a></p><p><span style=\" font-size:10pt;\">Control System software for the MIST-1 test beam at MIT</span></p><p><span style=\" font-size:10pt;\">Written for Python 3/PyQt5/PyQtGraph</span></p></body></html>"))
         self.btnDone.setText(_translate("AboutDialog", "Done"))
 

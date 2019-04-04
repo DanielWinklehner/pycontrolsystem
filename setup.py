@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='pycontrolsystem',
-      version='1.0.1',
+      version='1.0.2',
       python_requires='>=3',
       description='A control system with QT-based Client and Server to control hardware (e.g. Arduino).',
       url='https://github.com/DanielWinklehner/pycontrolsystem',
@@ -9,6 +9,7 @@ setup(name='pycontrolsystem',
       author_email='winklehn@mit.edu',
       license='MIT',
       packages=find_packages(),
-      # package_data={'': ['mainwindow.py', 'propertieswindow.py']},
       include_package_data=True,
+      # long_description=open('README.md').read(),
+      # long_description_content_type="text/markdown",
       zip_safe=False)

@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 # Thomas Wester <twester@mit.edu>
+# Daniel Winklehner <winklehn@mit.edu>
 # Procedure base class
-
 import operator
 import time
 
 # Noinspections necessary for PyCharm because installed PyQt5 module is just called 'pyqt'
 # noinspection PyPackageRequirements
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QPushButton, \
-                            QGroupBox, QTextEdit, QLineEdit  # , QWidget
+                            QGroupBox, QTextEdit, QLineEdit
 # noinspection PyPackageRequirements
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QThread
 # noinspection PyPackageRequirements, PyUnresolvedReferences
@@ -37,7 +37,6 @@ class Procedure(QObject):
         gb.setLayout(vbox)
         self._lblInfo = QLabel(self.info)
         vbox.addWidget(self._lblInfo)
-
         vbox.addLayout(self.control_button_layout())
 
         self._widget = gb
@@ -82,19 +81,25 @@ class Procedure(QObject):
     def json(self):
         return {'name': self._name}
 
+
 class BasicProcedure(Procedure):
 
     _sig_trigger = pyqtSignal(object)
     _sig_set = pyqtSignal(object, float)
+    _sig_send_slack = pyqtSignal(str)
 
-    def __init__(self, name, rules, actions, critical=False, triggertype='', email='', sms=''):
+    def __init__(self,
+                 name, rules, actions,
+                 critical=False, triggertype='',
+                 email='', sms='', notifications=None):
+
         super(BasicProcedure, self).__init__(name)
 
         self._rules = rules
         self._actions = actions
         self._critical = critical
 
-        if  triggertype not in ('startpoll', 'stoppoll', 'emstop', ''):
+        if triggertype not in ('startpoll', 'stoppoll', 'emstop', ''):
             print('invalid trigger type, setting manual mode...')
             self._triggertype = ''
         else:
@@ -103,6 +108,7 @@ class BasicProcedure(Procedure):
         # these should trigger sending email/sms if not blank
         self._email = email
         self._sms = sms
+        self._notifications = notifications
 
         if self._critical:
             self._title = '(Critical) {}'.format(self._name)
@@ -188,6 +194,14 @@ class BasicProcedure(Procedure):
         return self._sms
 
     @property
+    def slack_token(self):
+        return self._slack_token
+
+    @property
+    def notifications(self):
+        return self._notifications
+
+    @property
     def triggertype(self):
         return self._triggertype
 
@@ -219,21 +233,26 @@ class BasicProcedure(Procedure):
         for arduino_id, action in self._actions.items():
 
             time.sleep(action['delay'])
-            #print('setting value of {}.{} to {}'.format(action['device'].label,
-            #                                            action['channel'].label,
-            #                                            action['value']))
 
             self._sig_set.emit(action['channel'], action['value'])
 
-        if self._email != '':
-            # send email
-            pass
-
-        if self._sms != '':
-            # send text
-            pass
+        # Handle notifications
+        if self.notifications["email"]:
+            self._send_email()
+        if self.notifications["sms"]:
+            self._send_sms()
+        if self.notifications["slack"]:
+            self._sig_send_slack.emit(":octagonal_sign: '{}' procedure was triggered!".format(self.name))
 
         self._proc_thread.quit()
+
+    def _send_email(self):
+        if self._email != '':
+            print("Email sending not implemented yet, but should send a notification to {}".format(self._email))
+
+    def _send_sms(self):
+        if self._sms != '':
+            print("SMS sending not implemented yet, but should send a notification to {}".format(self._sms))
 
     @pyqtSlot()
     def on_proc_thread_finished(self):
@@ -245,6 +264,10 @@ class BasicProcedure(Procedure):
     @property
     def set_signal(self):
         return self._sig_set
+
+    @property
+    def send_notification_signal(self):
+        return self._sig_send_slack
 
     @property
     def info(self):
@@ -274,7 +297,7 @@ class BasicProcedure(Procedure):
             rulevalstr = val_to_str(rule['channel'].data_type, rule['value'])
 
             rval += 'If {}.{} is {} {} {}:\n'.format(rule['device'].label, rule['channel'].label,
-                                                comptext, rulevalstr, rule['channel'].unit)
+                                                     comptext, rulevalstr, rule['channel'].unit)
 
         totaldelay = 0
         for idx, action in self._actions.items():
@@ -285,12 +308,12 @@ class BasicProcedure(Procedure):
                                                    action['channel'].unit,
                                                    totaldelay)
 
-
-        if self._email != '':
+        if self.notifications["email"]:
             rval += '  Send an email to {}\n'.format(self._email)
-
-        if self._sms != '':
+        if self.notifications["sms"]:
             rval += '  Send a text to {}\n'.format(self._sms)
+        if self.notifications["slack"]:
+            rval += '  Send a slack message\n'
 
         return rval
 
@@ -332,8 +355,10 @@ class BasicProcedure(Procedure):
             'actions': action_dict,
             'email': self._email,
             'sms': self._sms,
+            'notifications': self._notifications,
             'critical': self._critical
         }
+
 
 class TimerProcedure(Procedure):
 
@@ -473,6 +498,7 @@ class TimerProcedure(Procedure):
                 'min_time': self._timer.min_time,
                 'continuous': self._timer.continuous,
                 }
+
 
 class PidProcedure(Procedure):
 

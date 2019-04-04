@@ -49,6 +49,14 @@ def load_from_csv(filename=''):
     winsettings = data['window-settings']
     cssettings = data['control-system-settings']
 
+    # Legacy handling of files that didn't save slack settings
+    try:
+        slack_settings = data['slack-settings']
+    except Exception as e:
+        print("Exception {} happened during file loading. "
+              "Probably a legacy file that didn't have Slack settings.".format(e))
+        slack_settings = {"token": None, "channel": None}
+
     devices = {}
     procedures = {}
 
@@ -127,4 +135,4 @@ def load_from_csv(filename=''):
 
         procedures[proc.name] = proc
 
-    return devices, procedures, winsettings, cssettings
+    return devices, procedures, winsettings, cssettings, slack_settings

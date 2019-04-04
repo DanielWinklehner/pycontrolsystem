@@ -54,6 +54,16 @@ In the Client GUI, click __Load Session__ and load the _2TestDevices.txt_ file.
 In the __Devices__ tab, one click on the different devices and cannels and see the ID's
 and other parameters.
 
+## Adding a Slack notification
+In the "Procedures" Dialog, there is a checkbox for Slack notifictions. In order
+for the control system to be able to actually send one, the user has to create an
+app and bot according to https://api.slack.com/slack-apps. They can then install
+the app to their workspace and obtain an authorization token. 
+
+This token will have to be entered in the Slack dialog accessible from 
+__Configure->Slack...__ in the GUI. A channel name that the bot is authorized to post 
+in should also be specified. 
+
 ## Changing the GUI using PyQt5
 _Note: This is just a random assortment of useful hints for GUI modifications_
 

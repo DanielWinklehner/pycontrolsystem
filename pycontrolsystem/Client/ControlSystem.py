@@ -5,30 +5,39 @@
 # Daniel Winklehner <winklehn@mit.edu> (2018 - )
 #
 # Code adapted from MIST1ControlSystem.py (Python 2/gtk3+ version)
-# import sys
 
-# import os
 import requests
 import json
 import timeit
 import time
 import threading
 import queue
-# import operator
+import os
+import datetime
 from multiprocessing import Process, Pipe
+from slackclient import SlackClient
 
 # noinspection PyPackageRequirements
-from PyQt5.QtCore import QObject, QThread, QTimer, pyqtSignal  # , pyqtSlot
+from PyQt5.QtCore import QObject, QThread, QTimer, pyqtSignal
 # noinspection PyPackageRequirements
-from PyQt5.QtWidgets import QFileDialog  # , QApplication
+from PyQt5.QtWidgets import QFileDialog, QTextEdit
+# noinspection PyPackageRequirements
+from PyQt5 import QtPrintSupport
+# noinspection PyPackageRequirements
+from PyQt5.QtGui import QFont, QTextCursor
 
 from .gui import MainWindow
 from .gui.dialogs.PlotChooseDialog import PlotChooseDialog
+from .gui.dialogs.SlackDialog import SlackDialog
 from .gui.dialogs.PlotSettingsDialog import PlotSettingsDialog
 from .gui.dialogs.ProcedureDialog import ProcedureDialog
 from .gui.dialogs.ErrorDialog import ErrorDialog
 from .gui.dialogs.WarningDialog import WarningDialog
-from .gui.style import dark_stylesheet
+
+try:
+    import qdarkstyle
+except ImportError:
+    qdarkstyle = None
 
 from .Device import Device
 from .Channel import Channel
@@ -187,25 +196,57 @@ class Communicator(QObject):
 
 class ControlSystem(object):
 
-    def __init__(self, parent_app, server_ip='127.0.0.1', server_port=80, debug=False):
+    def __init__(self, parent_app, title="PyControlSystem", server_ip='127.0.0.1', server_port=5000, debug=False):
+
+        # Get the root folder of this script
+        self._root = os.path.abspath(os.path.dirname(__file__))
+        self._title = title
+
+        # Initialize communicator thread as None
+        self._communicator = None
 
         # Store reference to 'parent' QApplication and set some parameters
         self._app = parent_app
-        self._app.setStyleSheet(dark_stylesheet())  # Looks cool
-        self._app.aboutToQuit.connect(self.on_quit_button) # connect the closing event to the quit button procedure
 
-        # --- Set up Qt UI and connect UI signals --- #
+        # TODO: Create Default XML file and Settings dialog to choose using this or not.
+        if qdarkstyle is not None:
+            self._app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+
+        self._app.aboutToQuit.connect(self.on_quit_button)  # connect the closing event to the quit button procedure
+
+        # --- Set up Qt UI and connect some UI signals --- #
         self._window = MainWindow.MainWindow()
+        self._window.setWindowTitle(self._title)
 
         self._window.ui.btnSave.triggered.connect(self.on_save_button)
+        self._window.ui.action_save_session.triggered.connect(self.on_save_button)
+
         self._window.ui.btnSaveAs.triggered.connect(self.on_save_as_button)
+        self._window.ui.action_save_session_as.triggered.connect(self.on_save_as_button)
+
         self._window.ui.btnLoad.triggered.connect(self.on_load_button)
-        self._window._btnquit.triggered.connect(self.on_quit_button)
+        self._window.ui.action_load_session.triggered.connect(self.on_load_button)
+
+        self._window.ui.btnQuit.triggered.connect(self.on_quit_button)
+        self._window.ui.action_quit.triggered.connect(self.on_quit_button)
+
+        # Connect printing functions
+        self._window.ui.action_print.triggered.connect(self.handle_print)
+        self._window.ui.action_print_preview.triggered.connect(self.handle_preview)
+        self._print_editor = QTextEdit()  # Create a QTextEdit object that holds the information to be printed
+        self._print_font = QFont()
+        self._print_font.setFamily("Calibri")
+        self._print_font.setPointSize(12)
+        self._print_editor.setFont(self._print_font)
+        self._print_editor.hide()
 
         self._window.ui.btnStartPause.clicked.connect(self.on_start_pause_click)
         self._window.ui.btnStop_2.clicked.connect(self.on_stop_click)
         self._window.ui.btnStop_2.setEnabled(False)
         self._window.ui.btnResetPinnedPlot.clicked.connect(self.reset_pinned_plot_callback)
+
+        # Connect the menu buttons
+        self._window.ui.action_slack.triggered.connect(self.show_slack_dialog)
 
         self._window.ui.btnSetupDevicePlots.clicked.connect(self.show_PlotChooseDialog)
         self._window.ui.btnAddProcedure.clicked.connect(self.show_ProcedureDialog)
@@ -263,6 +304,9 @@ class ControlSystem(object):
 
         self._pinned_curve = self._window._pinnedplot.curve
         self._pinned_channel = None
+
+        self._slack_token = None
+        self._slack_channel = None
 
         self._device_file_name = ''
         self._window.status_message('Initialization complete.')
@@ -672,7 +716,7 @@ class ControlSystem(object):
 
         channel.parent_device.update()
 
-    # ---- GUI ----
+    # ---- GUI ---- #
 
     def update_gui_devices(self):
         """ Main update function to be called when a device is changed """
@@ -706,7 +750,13 @@ class ControlSystem(object):
 
     # # @pyqtSlot()
     def on_stop_click(self):
+        # First we pause the polling like in the on_start_paus_click() function
+        self._communicator.send_message('pause_query', )
+        self._keep_communicating = False
+        self._communicator.isRunning = False
         self._plot_timer.stop()
+
+        # Then we shut it down
         self.shutdown_communication_threads()
         self._window.ui.btnStartPause.setText('Start Polling')
         self._window.ui.btnStop_2.setEnabled(False)
@@ -749,9 +799,10 @@ class ControlSystem(object):
                         channel.read_widget.setText(val)
 
         elif self._window.current_tab == 'plots':
+
             # update the plotted channels
-            for device_name, device in self._devices.items():
-                # for channel_name, channel in device.channels.items():
+            for _, _ in self._devices.items():
+
                 for channel in self._plotted_channels:
                     # pyqtgraph cant plot log of 0
                     channel._plot_curve.setData(channel.x_values, channel.y_values,
@@ -789,14 +840,59 @@ class ControlSystem(object):
         _plotsettingsdialog = PlotSettingsDialog(ch)
         _plotsettingsdialog.exec_()
 
+    def send_notification(self, notification_text):
+        # Callback function to handle sending of notifications
+        # This is in the main GUI loop so we can centrally update slack token
+        # and channel without communicating with the procedure threads. They
+        # just emit a signal to trigger this function here.
+        # :param: notification text
+        if self._slack_channel is not None and self._slack_token is not None:
+
+            _sc = SlackClient(self._slack_token)
+            ret_data = _sc.api_call("chat.postMessage", channel="mist-1-alarms", text=notification_text)
+
+            if not ret_data["ok"]:
+
+                self._window.status_message("A procedure was triggered, but failed to send a Slack message.")
+
+        self._window.status_message("A procedure was triggered, but no Slack token and channel were specified.")
+
+    def show_slack_dialog(self):
+        # Open the slack dialog to get the slack token
+        _slackdialog = SlackDialog(self._slack_token, self._slack_channel)
+        success, ret_data = _slackdialog.exec_()
+
+        # Note that SlackDialog does the checking for us, it will return
+        # None for ret_data if it couldn't communicate with Slack
+        # On Cancel (success==0) we do nothing.
+        if success:
+
+            if ret_data is not None:
+
+                self._window.status_message("Slack token and channel were updated.")
+                self._slack_token = ret_data["token"]
+                self._slack_channel = ret_data["channel_id"]
+
+            else:
+
+                self._window.status_message("Slack token and channel were reset to None.")
+                self._slack_token = None
+                self._slack_channel = None
+
     # # @pyqtSlot()
     def on_quit_button(self):
-        # shut down communication threads
+        # First we pause the polling like in the on_start_paus_click() function
+        if self._communicator is not None:
+            self._communicator.send_message('pause_query', )
+            self._keep_communicating = False
+            self._communicator.isRunning = False
+            self._plot_timer.stop()
+
+        # Then we shut down communication threads
         self.shutdown_communication_threads()
         self._window.close()
 
-    # ---- dialogs ----
-
+    # ---- dialogs ---- #
     def on_save_button(self):
         if self._device_file_name == '':
             fileName, _ = QFileDialog.getSaveFileName(self._window,
@@ -831,14 +927,18 @@ class ControlSystem(object):
                 'pinned-channel': chpinname,
                 'pinned-device': devpinname,
                 'plotted-channels': [(x.name, x.parent_device.name) for
-                                     x in self._plotted_channels]
-            }
+                                     x in self._plotted_channels]}
+
+            # TODO: I don't like saving the Slack token in plain text json! -DW
+            slacksettingsdict = {'token': self._slack_token,
+                                 'channel': self._slack_channel}
 
             output = {
                 'devices': devdict,
                 'procedures': procdict,
                 'window-settings': winsettingsdict,
                 'control-system-settings': cssettingsdict,
+                'slack-settings': slacksettingsdict
             }
 
             json.dump(output, f, sort_keys=True, indent=4, separators=(', ', ': '))
@@ -846,18 +946,59 @@ class ControlSystem(object):
         self._window.status_message('Saved session to {}.'.format(self._device_file_name))
 
     def on_save_as_button(self):
-        fileName, _ = QFileDialog.getSaveFileName(self._window,
-                                                  "Save Session as JSON", "", "Text Files (*.txt)")
+        _fn, _ = QFileDialog.getSaveFileName(self._window,
+                                             "Save Session as JSON", "", "Text Files (*.txt)")
 
-        if fileName == '':
+        if _fn == '':
             return
 
-        if fileName[-4:] != '.txt':
-            fileName += '.txt'
+        if _fn[-4:] != '.txt':
+            _fn += '.txt'
 
-        self._device_file_name = fileName
+        self._device_file_name = _fn
 
         self.on_save_button()
+
+    def handle_print(self):
+
+        printer = QtPrintSupport.QPrinter(QtPrintSupport.QPrinter.HighResolution)
+        dialog = QtPrintSupport.QPrintDialog(printer, self._window)
+
+        if dialog.exec_() == QtPrintSupport.QPrintDialog.Accepted:
+            self.assemble_print_text()
+            self._print_editor.document().print_(dialog.printer())
+            self._window.status_message("Sent summary document to printer {}".format(dialog.printer().printerName()))
+
+    def handle_preview(self):
+
+        self.assemble_print_text()
+
+        dialog = QtPrintSupport.QPrintPreviewDialog()
+        dialog.paintRequested.connect(self._print_editor.print_)
+        if dialog.exec_() == QtPrintSupport.QPrintPreviewDialog.Accepted:
+            self._window.status_message("Sent summary document to printer {}".format(dialog.printer().printerName()))
+
+    def assemble_print_text(self):
+        # Query Devices for information
+        self._print_editor.setText("")
+        self._print_editor.setFontUnderline(True)
+        self._print_editor.setFontPointSize(14)
+        self._print_editor.setText("{} summary from {}:"
+                                   "\n".format(self._title, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+        self._print_editor.moveCursor(QTextCursor.End)
+        self._print_editor.setFontUnderline(False)
+        self._print_editor.setFontPointSize(12)
+
+        text = ""
+        for _, _dev in self._devices.items():
+
+            text += "\nDevice {}:\n".format(_dev.label)
+
+            for _, _cha in _dev.channels.items():
+
+                text += _cha.get_print_str()
+
+        self._print_editor.insertPlainText(text)
 
     # # @pyqtSlot()
     def on_load_button(self):
@@ -869,12 +1010,18 @@ class ControlSystem(object):
         if filename == '':
             return
 
+        # load_from_csv is a homebrewed function in FileOps.py
         res = load_from_csv(filename)
+
         if res is None:
             self._window.status_message('Unable to read JSON.')
             return
         else:
-            devices, procedures, winsettings, cssettings = res
+
+            devices, procedures, winsettings, cssettings, slack_settings = res
+
+            self._slack_token = slack_settings["token"]
+            self._slack_channel = slack_settings["channel"]
 
         # Add devices and procedures
         for _, dev in devices.items():
@@ -887,6 +1034,23 @@ class ControlSystem(object):
         # Load control system settings
         self._window.apply_settings(winsettings)
         self.apply_settings(cssettings)
+
+        # Test slack client
+        if self._slack_token is not None:
+            _sc = SlackClient(self._slack_token)
+            test_data = _sc.api_call("api.test")
+            if not test_data['ok']:
+                self._window.status_message("Testing Slack token: Fail!, Error: {}. "
+                                            "Token and channel deleted.".format(test_data['error']))
+                self._slack_token = None
+                self._slack_channel = None
+            else:
+                test_data = _sc.api_call("channels.info", channel=self._slack_channel)
+                if not test_data['ok']:
+                    self._window.status_message("Testing Slack channel '{}': Fail!, Error: {}. "
+                                                "Channel deleted (token worked.)".format(self._slack_channel,
+                                                                                         test_data['error']))
+                    self._slack_channel = None
 
         if successes > 0:
             self._device_file_name = filename
@@ -901,19 +1065,23 @@ class ControlSystem(object):
         self.update_gui_devices()
 
     def add_procedure(self, procedure):
+
         self._procedures[procedure.name] = procedure
         procedure.signal_edit.connect(self.edit_procedure)
         procedure.signal_delete.connect(self.delete_procedure)
+
         if isinstance(procedure, PidProcedure):
             procedure.set_signal.connect(self.set_value_callback)
 
         if isinstance(procedure, BasicProcedure):
             procedure.set_signal.connect(self.set_value_callback)
+            procedure.send_notification_signal.connect(self.send_notification)
             # connect emergency stop button signal
             if procedure.triggertype == 'emstop':
                 f = lambda: procedure.do_actions()
                 self._window.ui.btnStop.clicked.connect(f)
                 self._emergency_stop_signals[procedure.name] = f
+
         procedure.initialize()
 
     def edit_procedure(self, proc):

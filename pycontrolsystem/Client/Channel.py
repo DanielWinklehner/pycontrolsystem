@@ -689,6 +689,12 @@ class Channel(QObject):
             return
         self._mode = value
 
+    def get_print_str(self):
+        # TODO: Update formatting and add set value to string (how to best get it?). -DW
+        fmt = '{:' + self.displayformat + '}'
+        val = str(fmt.format(self.value))
+        return "\tChannel {}: Read: {} {}\n".format(self.label, val, self.unit)
+
     def get_json(self):
 
         properties = {'name': self._name,

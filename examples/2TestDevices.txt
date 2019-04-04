@@ -1,37 +1,29 @@
 {
     "control-system-settings": {
-        "pinned-channel": "Ch2", 
-        "pinned-device": "DummyDevice1", 
+        "pinned-channel": null, 
+        "pinned-device": null, 
         "plotted-channels": [
             [
-                "Ch1", 
-                "DummyDevice1"
+                "channel1", 
+                "dummy_device1"
             ], 
             [
-                "Ch2", 
-                "DummyDevice1"
-            ], 
-            [
-                "Ch1", 
-                "DummyDevice2"
-            ], 
-            [
-                "Ch2", 
-                "DummyDevice2"
+                "channel2", 
+                "dummy_device1"
             ]
         ]
     }, 
     "devices": {
-        "DummyDevice1": {
+        "dummy_device1": {
             "channels": {
-                "Ch1": {
+                "channel1": {
                     "data_type": "<class 'float'>", 
                     "display_mode": "f", 
-                    "display_order": 0, 
+                    "display_order": 10, 
                     "label": "Channel 1", 
                     "lower_limit": -100.0, 
                     "mode": "both", 
-                    "name": "Ch1", 
+                    "name": "channel1", 
                     "plot_settings": {
                         "widget": {
                             "color": "#ff0000"
@@ -61,14 +53,14 @@
                     "upper_limit": 100.0, 
                     "write_mode": "text"
                 }, 
-                "Ch2": {
+                "channel2": {
                     "data_type": "<class 'float'>", 
                     "display_mode": "f", 
-                    "display_order": -1, 
+                    "display_order": 0, 
                     "label": "Channel 2", 
                     "lower_limit": -10.0, 
                     "mode": "both", 
-                    "name": "Ch2", 
+                    "name": "channel2", 
                     "plot_settings": {
                         "widget": {
                             "color": "#ff0000"
@@ -102,103 +94,24 @@
             "device_id": "Dummy1", 
             "driver": "ArduinoMega", 
             "label": "Dummy Device 1", 
-            "name": "DummyDevice1", 
+            "name": "dummy_device1", 
             "overview_order": -2
-        }, 
-        "DummyDevice2": {
-            "channels": {
-                "Ch1": {
-                    "data_type": "<class 'float'>", 
-                    "display_mode": "f", 
-                    "display_order": 100, 
-                    "label": "Channel 1", 
-                    "lower_limit": -100.0, 
-                    "mode": "both", 
-                    "name": "Ch1", 
-                    "plot_settings": {
-                        "widget": {
-                            "color": "#ff0000"
-                        }, 
-                        "x": {
-                            "grid": false, 
-                            "label": "", 
-                            "log": false, 
-                            "max": 0, 
-                            "min": 0, 
-                            "mode": "auto"
-                        }, 
-                        "y": {
-                            "grid": false, 
-                            "label": "", 
-                            "log": false, 
-                            "max": 0, 
-                            "min": 0, 
-                            "mode": "auto"
-                        }
-                    }, 
-                    "precision": 2, 
-                    "scaling": 1.0, 
-                    "scaling_read": null, 
-                    "stored_values": 500, 
-                    "unit": "V", 
-                    "upper_limit": 100.0, 
-                    "write_mode": "text"
-                }, 
-                "Ch2": {
-                    "data_type": "<class 'float'>", 
-                    "display_mode": "f", 
-                    "display_order": 10, 
-                    "label": "Channel 2", 
-                    "lower_limit": -10.0, 
-                    "mode": "both", 
-                    "name": "Ch2", 
-                    "plot_settings": {
-                        "widget": {
-                            "color": "#ff0000"
-                        }, 
-                        "x": {
-                            "grid": false, 
-                            "label": "", 
-                            "log": false, 
-                            "max": 0, 
-                            "min": 0, 
-                            "mode": "auto"
-                        }, 
-                        "y": {
-                            "grid": false, 
-                            "label": "", 
-                            "log": false, 
-                            "max": 0, 
-                            "min": 0, 
-                            "mode": "auto"
-                        }
-                    }, 
-                    "precision": 2, 
-                    "scaling": 1.0, 
-                    "scaling_read": null, 
-                    "stored_values": 500, 
-                    "unit": "A", 
-                    "upper_limit": 10.0, 
-                    "write_mode": "text"
-                }
-            }, 
-            "device_id": "Dummy2", 
-            "driver": "ArduinoMega", 
-            "label": "Dummy Device 2", 
-            "name": "DummyDevice2", 
-            "overview_order": -5
         }
     }, 
     "procedures": {}, 
+    "slack-settings": {
+        "channel": null, 
+        "token": null
+    }, 
     "window-settings": {
-        "split-main-first": 694, 
-        "split-main-second": 1199, 
-        "split-settings-first": 541, 
-        "split-settings-second": 304, 
-        "window-height": 1176, 
+        "split-main-first": 469, 
+        "split-main-second": 901, 
+        "split-settings-first": 562, 
+        "split-settings-second": 300, 
+        "window-height": 904, 
         "window-maximize-state": false, 
-        "window-pos-x": 1912, 
-        "window-pos-y": -8, 
-        "window-width": 1936
+        "window-pos-x": 326, 
+        "window-pos-y": 150, 
+        "window-width": 1413
     }
 }

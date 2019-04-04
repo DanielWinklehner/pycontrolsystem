@@ -2,33 +2,29 @@
 # -*- coding: utf-8 -*-
 
 # Thomas Wester <twester@mit.edu>
+# Daniel Winklehner <winklehn@mit.edu>
 # Handles widget creation in the main window
 
 import time
-# import copy
+import os
+import webbrowser as wb
+
 # Noinspections necessary for PyCharm because installed PyQt5 module is just called 'pyqt'
 # noinspection PyPackageRequirements
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMainWindow, QGridLayout, QHBoxLayout, QVBoxLayout, QTreeWidgetItem
 # noinspection PyPackageRequirements
-from PyQt5.QtWidgets import QGridLayout, QHBoxLayout, QVBoxLayout, \
-                            QWidget, QSizePolicy, QAction, QTreeWidgetItem
-# QComboBox, QGroupBox, QLineEdit, QLabel,
-# QRadioButton, QScrollArea, QPushButton
+from PyQt5.QtCore import Qt, pyqtSignal
 # noinspection PyPackageRequirements
-from PyQt5.QtCore import Qt, pyqtSignal  # , pyqtSlot
-# noinspection PyPackageRequirements
-from PyQt5.QtGui import QPixmap, QIcon  # , QFont
+from PyQt5.QtGui import QPixmap, QIcon
 
 from .ui_MainWindow import Ui_MainWindow
 from .dialogs.AboutDialog import AboutDialog
 from .dialogs.ErrorDialog import ErrorDialog
 
 from .widgets.DateTimePlotWidget import DateTimePlotWidget
-# from .widgets.EntryForm import EntryForm
 
 from ..Device import Device
 from ..Channel import Channel
-# from pycontrolsystem.Client.Procedure import Procedure
 
 
 class MainWindow(QMainWindow):
@@ -50,37 +46,39 @@ class MainWindow(QMainWindow):
         self._tabview = self.ui.tabMain
         self._btnload = self.ui.btnLoad
         self._btnsave = self.ui.btnSave
+        self._btnsaveas = self.ui.btnSaveAs
         self._btnquit = self.ui.btnQuit
+        self._btnabout = self.ui.btnAbout
 
         # set up pinned plot
         self._pinnedplot = DateTimePlotWidget()
         self._gbpinnedplot.layout().itemAt(0).widget().deleteLater()
         self._gbpinnedplot.layout().insertWidget(0, self._pinnedplot)
 
-        # add a right-aligned About tool bar button
-        spc = QWidget()
-        spc.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        spc.setVisible(True)
-        self.ui.toolBar.addWidget(spc)
-        self._btnAbout = QAction('About', None)
-        self.ui.toolBar.addAction(self._btnAbout)
+        # Icons
+        self._icon_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "images/icons")
 
-        # icons
-        self._btnquit.setIcon(QIcon(QPixmap('gui/images/icons/process-stop.png')))
-        self._btnload.setIcon(QIcon(QPixmap('gui/images/icons/document-open.png')))
-        self._btnsave.setIcon(QIcon(QPixmap('gui/images/icons/document-save.png')))
-        self._btnAbout.setIcon(QIcon(QPixmap('gui/images/icons/help-browser.png')))
-        self.ui.btnExpand.setIcon(QIcon(QPixmap('gui/images/icons/list-add.png')))
-        self.ui.btnCollapse.setIcon(QIcon(QPixmap('gui/images/icons/list-remove.png')))
+        self._btnquit.setIcon(QIcon(QPixmap(os.path.join(self._icon_path, 'process-stop.png'))))
+        self._btnload.setIcon(QIcon(QPixmap(os.path.join(self._icon_path, 'document-open.png'))))
+        self._btnsave.setIcon(QIcon(QPixmap(os.path.join(self._icon_path, 'document-save.png'))))
+        self._btnsaveas.setIcon(QIcon(QPixmap(os.path.join(self._icon_path, 'document-save.png'))))
+        self._btnabout.setIcon(QIcon(QPixmap(os.path.join(self._icon_path, 'help-browser.png'))))
 
-        # dialog connection
-        self._btnAbout.triggered.connect(self.show_AboutDialog)
+        self.ui.btnExpand.setIcon(QIcon(QPixmap(os.path.join(self._icon_path, 'list-add.png'))))
+        self.ui.btnCollapse.setIcon(QIcon(QPixmap(os.path.join(self._icon_path, 'list-remove.png'))))
+
+        # About dialog connection
+        self._btnabout.triggered.connect(self.show_AboutDialog)
+        self.ui.action_about.triggered.connect(self.show_AboutDialog)
+
+        # Help will open the README.md
+        self.ui.action_help.triggered.connect(self.show_readme)
 
         # tab changes
         self._current_tab = 'main'
         self._tabview.currentChanged.connect(self.tab_changed)
 
-        ## set up containers
+        # set up containers
         self._overview_layout = QHBoxLayout()
         self._overview.setLayout(self._overview_layout)
         self._overview_layout.addStretch()
@@ -243,6 +241,11 @@ class MainWindow(QMainWindow):
     def show_AboutDialog(self):
         _aboutdialog = AboutDialog()
         _aboutdialog.exec_()
+
+    @staticmethod
+    def show_readme():
+        readme_url = "https://github.com/DanielWinklehner/pycontrolsystem"
+        wb.open(readme_url, new=2)
 
     def show_ErrorDialog(self, error_message='Error'):
         _errordialog = ErrorDialog(error_message)

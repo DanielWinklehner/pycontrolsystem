@@ -1,0 +1,2 @@
+include pycontrolsystem/Client/gui/images/*.png
+include pycontrolsystem/Client/gui/images/icons/*.png

@@ -5,3 +5,4 @@ pyserial
 pyqt
 pyqtgraph
 slackclient
+qdarkstyle

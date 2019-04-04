@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'D:\Daniel\Dropbox (MIT)\Code\Python\pycontrolsystem_dev\pycontrolsystem\Client\designer\ProcedureDialog.ui'
+# Form implementation generated from reading ui file 'ProcedureDialog.ui'
 #
 # Created by: PyQt5 UI code generator 5.9.2
 #
@@ -361,11 +361,16 @@ class Ui_ProcedureDialog(object):
         self.horizontalLayout_6 = QtWidgets.QHBoxLayout(self.gbNotify)
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
         self.chkEmail = QtWidgets.QCheckBox(self.gbNotify)
+        self.chkEmail.setEnabled(False)
         self.chkEmail.setObjectName("chkEmail")
         self.horizontalLayout_6.addWidget(self.chkEmail)
         self.chkText = QtWidgets.QCheckBox(self.gbNotify)
+        self.chkText.setEnabled(False)
         self.chkText.setObjectName("chkText")
         self.horizontalLayout_6.addWidget(self.chkText)
+        self.chkSlack = QtWidgets.QCheckBox(self.gbNotify)
+        self.chkSlack.setObjectName("chkSlack")
+        self.horizontalLayout_6.addWidget(self.chkSlack)
         self.horizontalLayout_9.addWidget(self.gbNotify)
         self.verticalLayout.addLayout(self.horizontalLayout_9)
         self.gbContact = QtWidgets.QGroupBox(ProcedureDialog)
@@ -476,7 +481,8 @@ class Ui_ProcedureDialog(object):
         self.chkCritical.setText(_translate("ProcedureDialog", "Critical"))
         self.gbNotify.setTitle(_translate("ProcedureDialog", "Notify"))
         self.chkEmail.setText(_translate("ProcedureDialog", "Email"))
-        self.chkText.setText(_translate("ProcedureDialog", "Slack"))
+        self.chkText.setText(_translate("ProcedureDialog", "Mobile"))
+        self.chkSlack.setText(_translate("ProcedureDialog", "Slack"))
         self.gbContact.setTitle(_translate("ProcedureDialog", "Contact Information"))
         self.lblText.setText(_translate("ProcedureDialog", "Mobile"))
         self.lblEmail.setText(_translate("ProcedureDialog", "Email"))
