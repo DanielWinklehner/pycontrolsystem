@@ -122,7 +122,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addItem(spacerItem4)
         self.verticalLayout_2.addLayout(self.horizontalLayout_3)
         self.verticalLayout_5.addWidget(self.splitSide)
-        self.tabMain = QtWidgets.QTabWidget(self.splitMain)
+        self.tabMain = TabWindowWidget(self.splitMain)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -150,7 +150,7 @@ class Ui_MainWindow(object):
         self.scroller.setWidgetResizable(True)
         self.scroller.setObjectName("scroller")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 61, 16))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 830, 677))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.gridLayout_6 = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_6.setContentsMargins(0, 0, 0, 0)
@@ -247,7 +247,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 65, 16))
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 834, 640))
         self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
         self.gridLayout_4 = QtWidgets.QGridLayout(self.scrollAreaWidgetContents_2)
         self.gridLayout_4.setContentsMargins(0, 0, 0, 0)
@@ -284,7 +284,7 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollArea_2.setObjectName("scrollArea_2")
         self.scrollAreaWidgetContents_3 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 65, 29))
+        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 834, 640))
         self.scrollAreaWidgetContents_3.setObjectName("scrollAreaWidgetContents_3")
         self.gridLayout_10 = QtWidgets.QGridLayout(self.scrollAreaWidgetContents_3)
         self.gridLayout_10.setContentsMargins(0, 0, 0, 11)
@@ -400,7 +400,7 @@ class Ui_MainWindow(object):
         self.menuBar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabMain.setCurrentIndex(4)
+        self.tabMain.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -447,4 +447,5 @@ class Ui_MainWindow(object):
         self.action_print.setText(_translate("MainWindow", "Print..."))
         self.action_print_preview.setText(_translate("MainWindow", "Print Preview..."))
 
+from .widgets.TabWindowWidget import TabWindowWidget
 from pyqtgraph import PlotWidget

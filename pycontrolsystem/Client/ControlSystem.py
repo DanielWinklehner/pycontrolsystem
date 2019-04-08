@@ -20,7 +20,7 @@ from slackclient import SlackClient
 # noinspection PyPackageRequirements
 from PyQt5.QtCore import QObject, QThread, QTimer, pyqtSignal
 # noinspection PyPackageRequirements
-from PyQt5.QtWidgets import QFileDialog, QTextEdit
+from PyQt5.QtWidgets import QFileDialog, QTextEdit, QWidget
 # noinspection PyPackageRequirements
 from PyQt5 import QtPrintSupport
 # noinspection PyPackageRequirements
@@ -257,7 +257,12 @@ class ControlSystem(object):
         self._plot_timer.timeout.connect(self.update_value_displays)
         # self._plot_timer.start(25)
 
-        # --- Initialize RasPi server --- #
+        # Handling of tabs to windows to tabs
+        self._plots_in_window = False  # Flag that tells the GUI whether the plot tab is in a window or a tab
+        self._window.ui.tabMain.sig_window_to_tab.connect(self.window_to_tab)
+        self._window.ui.tabMain.sig_tab_to_window.connect(self.tab_to_window)
+
+        # --- Initialize server --- #
         self.debug = debug
         self._server_url = 'http://{}:{}/'.format(server_ip, server_port)
 
@@ -310,6 +315,14 @@ class ControlSystem(object):
 
         self._device_file_name = ''
         self._window.status_message('Initialization complete.')
+
+    def window_to_tab(self, content):
+        if content.objectName() == "plotting":
+            self._plots_in_window = False
+
+    def tab_to_window(self, content):
+        if content.objectName() == "plotting":
+            self._plots_in_window = True
 
     # ---- Server Communication ---- #
     def setup_communication_threads(self):
@@ -798,7 +811,8 @@ class ControlSystem(object):
                         val = str(fmt.format(channel.value))
                         channel.read_widget.setText(val)
 
-        elif self._window.current_tab == 'plots':
+        # If plot tab is in window mode, we would like it to update always...
+        if self._window.current_tab == 'plots' or self._plots_in_window:
 
             # update the plotted channels
             for _, _ in self._devices.items():
