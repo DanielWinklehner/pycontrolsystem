@@ -26,10 +26,10 @@ from .widgets.DateTimePlotWidget import DateTimePlotWidget
 from ..Device import Device
 from ..Channel import Channel
 
-import pyqtgraph as pg
-# Switch PyQtGraph to using white background and black foreground (before creating main window!)
-pg.setConfigOption('background', 'w')
-pg.setConfigOption('foreground', 'k')
+# import pyqtgraph as pg
+# # Switch PyQtGraph to using white background and black foreground (before creating main window!)
+# pg.setConfigOption('background', 'w')
+# pg.setConfigOption('foreground', 'k')
 
 
 class MainWindow(QMainWindow):
