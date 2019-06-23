@@ -105,3 +105,4 @@ ENV/
 
 # scripts and files for reference are in the nosync folder
 nosync/
+mist1.py

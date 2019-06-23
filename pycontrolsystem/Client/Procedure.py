@@ -108,7 +108,11 @@ class BasicProcedure(Procedure):
         # these should trigger sending email/sms if not blank
         self._email = email
         self._sms = sms
-        self._notifications = notifications
+
+        if notifications is not None:
+            self._notifications = notifications
+        else:
+            self._notifications = {'email': False, 'sms': False, 'slack': False}
 
         if self._critical:
             self._title = '(Critical) {}'.format(self._name)
