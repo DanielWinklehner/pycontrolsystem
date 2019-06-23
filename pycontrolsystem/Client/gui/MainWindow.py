@@ -105,7 +105,7 @@ class MainWindow(QMainWindow):
     def apply_settings(self, settings):
         self.resize(settings['window-width'], settings['window-height'])
 
-        self.ui.splitMain.setSizes([settings['split-main-first'],
+        self.ui.splitter_horizontal.setSizes([settings['split-main-first'],
                                     settings['split-main-second']])
 
         self.ui.splitSettings.setSizes([settings['split-settings-first'],
@@ -116,8 +116,8 @@ class MainWindow(QMainWindow):
 
     def current_settings(self):
         return {
-            'split-main-first': self.ui.splitMain.sizes()[0],
-            'split-main-second': self.ui.splitMain.sizes()[1],
+            'split-main-first': self.ui.splitter_horizontal.sizes()[0],
+            'split-main-second': self.ui.splitter_horizontal.sizes()[1],
             'split-settings-first': self.ui.splitSettings.sizes()[0],
             'split-settings-second': self.ui.splitSettings.sizes()[1],
             'window-maximize-state': True if self.windowState == Qt.WindowMaximized else False,

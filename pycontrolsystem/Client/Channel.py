@@ -88,6 +88,7 @@ class ChannelWidget(QGroupBox):
                     lblunit = QLabel(self._channel.unit)
                     self._unit_labels.append(lblunit)
                     txtwrite = QLineEdit(str(self._channel.lower_limit))
+                    txtwrite.setMinimumWidth(80)
                     txtwrite.returnPressed.connect(self.set_value_callback)
                     self._write_widget = txtwrite
                     hbox_write.addWidget(self._write_widget)
@@ -106,6 +107,7 @@ class ChannelWidget(QGroupBox):
                 lblunit = QLabel(self._channel.unit)
                 self._unit_labels.append(lblunit)
                 txtread = QLineEdit()
+                txtread.setMinimumWidth(80)
                 txtread.setDisabled(True)
                 self._read_widget = txtread
 
