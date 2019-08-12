@@ -4,14 +4,14 @@ import numpy as np
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 
-class Pid(QObject):
 
+class Pid(QObject):
     _sig_set_value = pyqtSignal(float)
     _sig_skip_value = pyqtSignal(float)
     _sig_ma_total = pyqtSignal(float)
 
     def __init__(self, channel, target=0.0, coeffs=[1.0, 1.0, 1.0], dt=0.5,
-                 ma=1, warmup=0, offset=0.0,):
+                 ma=1, warmup=0, offset=0.0, ):
         super().__init__()
         self._target = target
         self._channel = channel
@@ -39,7 +39,7 @@ class Pid(QObject):
             if ma_count < self._ma:
                 ma_count += 1
                 ma_sum_values += self._channel.value
-            
+
             if ma_count < self._ma:
                 self._sig_ma_total.emit(ma_sum_values / ma_count)
             else:

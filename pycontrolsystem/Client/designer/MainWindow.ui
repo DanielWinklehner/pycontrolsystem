@@ -224,6 +224,7 @@
               <property name="font">
                <font>
                 <family>MS Shell Dlg 2</family>
+                <pointsize>10</pointsize>
                </font>
               </property>
               <property name="title">
@@ -409,6 +410,7 @@
                  <widget class="QFrame" name="fmOverview">
                   <property name="font">
                    <font>
+                    <family>MS Shell Dlg 2</family>
                     <pointsize>10</pointsize>
                    </font>
                   </property>

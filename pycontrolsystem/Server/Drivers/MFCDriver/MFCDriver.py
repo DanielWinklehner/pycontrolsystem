@@ -86,8 +86,6 @@ class MFCDriver:
         else:
             msg += "?"
 
-        #print(type(data_type), isinstance(data_type, float))
-
         if value is not None and msg_type:
             # Handle the numerical values
             if data_type in ["<class 'bool'>", "<type 'bool'>"]:
@@ -129,7 +127,6 @@ class MFCDriver:
         drivers_response_to_server = []
 
         for i in range(num_of_mesg):
-
             drivers_response_to_server.append(
                 (self.build_message(msg_type=server_to_driver['set'],
                                     device_address=server_to_driver['device_id'],
@@ -151,7 +148,7 @@ class MFCDriver:
             if parsed_message['acknowledged']:
 
                 drivers_response_to_server[channel_id] = float(parsed_message['value'])
-                #print(parsed_message['value'])
+                # print(parsed_message['value'])
 
             else:
 
@@ -170,4 +167,3 @@ if __name__ == '__main__':
     x.tests()
     print(x.translate_gui_to_device(message_to_driver))
     print(x.translate_device_to_gui(response_from_driver, message_to_driver))
-

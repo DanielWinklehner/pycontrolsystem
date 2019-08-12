@@ -3,6 +3,7 @@ from .MFCDriver import *
 from .TDKDriver import *
 from .REKDriver import *
 from .CODriver import *
+from .AIMDriver import *
 
 """
 The driver mapping contains the information needed for the DeviceDriver class and the RasPiServer to
@@ -30,15 +31,20 @@ driver_mapping = {'ArduinoMicro': {'driver': ArduinoDriver,
                              'known_serials': ["3596460"]
                              },
                   'FT232R': {'driver': TDKDriver,
-                              'baud_rate': 19200,
-                              'vid_pid': (0x0403, 0x6001),
-                              'known_serials': ["A5051Z0GA"]
-                              },
+                             'baud_rate': 19200,
+                             'vid_pid': (0x0403, 0x6001),
+                             'known_serials': ["A5051Z0GA"]
+                             },
                   'Prolific': {'driver': REKDriver,
                                'baud_rate': 9600,
                                'vid_pid': (0x067B, 0x2303),
                                'known_serials': ["9"]
                                },
+                  'nAIM-S': {'driver': AIMDriver,
+                             'baud_rate': 9600,
+                             'vid_pid': (0x067B, 0x2303),
+                             'known_serials': ["5"]
+                             },
                   'MATSUSADA': {'driver': CODriver,
                                 'baud_rate': 9600,
                                 'vid_pid': (0x1192, 0x1000),

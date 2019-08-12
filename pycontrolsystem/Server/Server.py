@@ -151,7 +151,8 @@ def serial_watchdog(com_pipe, debug, port_identifiers):
     _com_freq = 2.0  # (Hz)
     _com_period = 1.0 / _com_freq  # (s)
     _debug = debug
-    # _port_identifiers = port_identifiers
+    if _debug:
+        print(port_identifiers)
 
     serial_finder = SerialDeviceFinder(port_identifiers)
     finder_list = [serial_finder]
@@ -186,6 +187,8 @@ def serial_watchdog(com_pipe, debug, port_identifiers):
             _finder_info = {}
             for finder in finder_list:
                 _finder_info[finder.name] = finder.find_devices()
+                if _debug:
+                    print(_finder_info)
                 if _finder_info[finder.name]['added'] != {}:
                     _device_added = True
 
@@ -229,7 +232,7 @@ app = Flask(__name__)
 # log = logging.getLogger('werkzeug')
 # log.setLevel(logging.ERROR)
 
-_mydebug = False
+_mydebug = True
 _pipe_server, pipe_serial_watcher = Pipe()
 _watch_proc = Process(target=serial_watchdog,
                       args=(pipe_serial_watcher, _mydebug, driver_mapping))
