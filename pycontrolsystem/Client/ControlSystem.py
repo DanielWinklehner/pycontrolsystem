@@ -864,12 +864,15 @@ class ControlSystem(object):
 
             _sc = SlackClient(self._slack_token)
             ret_data = _sc.api_call("chat.postMessage", channel="mist-1-alarms", text=notification_text)
+            print(ret_data)
 
             if not ret_data["ok"]:
 
                 self._window.status_message("A procedure was triggered, but failed to send a Slack message.")
 
-        self._window.status_message("A procedure was triggered, but no Slack token and channel were specified.")
+        else:
+
+            self._window.status_message("A procedure was triggered, but no Slack token and channel were specified.")
 
     def show_slack_dialog(self):
         # Open the slack dialog to get the slack token
@@ -892,6 +895,8 @@ class ControlSystem(object):
                 self._window.status_message("Slack token and channel were reset to None.")
                 self._slack_token = None
                 self._slack_channel = None
+
+        print(self._slack_token)
 
     # # @pyqtSlot()
     def on_quit_button(self):
