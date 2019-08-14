@@ -231,7 +231,7 @@ app = Flask(__name__)
 # log = logging.getLogger('werkzeug')
 # log.setLevel(logging.ERROR)
 
-_mydebug = True
+_mydebug = False
 _pipe_server, pipe_serial_watcher = Pipe()
 _watch_proc = Process(target=serial_watchdog,
                       args=(pipe_serial_watcher, _mydebug, driver_mapping))
