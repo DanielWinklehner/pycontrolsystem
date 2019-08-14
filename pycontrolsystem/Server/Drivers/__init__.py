@@ -43,7 +43,7 @@ driver_mapping = {'ArduinoMicro': {'driver': ArduinoDriver,
                   'nAIM-S': {'driver': AIMDriver,
                              'baud_rate': 9600,
                              'vid_pid': (0x067B, 0x2303),
-                             'known_serials': ["5"]
+                             'known_serials': ["7"]
                              },
                   'MATSUSADA': {'driver': CODriver,
                                 'baud_rate': 9600,
