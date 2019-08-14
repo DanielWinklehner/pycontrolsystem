@@ -4,7 +4,8 @@ from __future__ import division
 class AIMDriver:
     def __init__(self):
         self.command_dict = {'id': 'S0',
-                             'p1': 'V752'}
+                             'p1': 'V752',
+                             'on': 'C752'}
 
     @staticmethod
     def parse_message(_message):
@@ -13,10 +14,12 @@ class AIMDriver:
         if _message.startswith('*'):
             # Error response or set commend acknowledged (error code '00' = all good)
             print("Error response:", _message)
-            value, status = _message.strip().split()[1].split(';')
+            cmd, status = _message.strip().split()
             status = int(status)
             if status == 0:
                 ack = True
+            else:
+                print("AIMDriver received error message #{}".format(status))
         elif _message.startswith('='):
             # Query response
             print("Query response:", _message)
@@ -25,6 +28,7 @@ class AIMDriver:
             value = float(value)
             gas_type = [0, 0, 0]  # Default is N2 (binary 000 = ascii 0)
             p_units = [1, 0]  # Default is Pascal (binary 10 = ascii 2)
+            # TODO: This is probably wrong. I usually only receive two bytes when manually querying
             (
                 mag_exp,  # Magnetron exposure threshold exceeded
                 gas_type[2], gas_type[1], gas_type[0],  # Gas type in binary
@@ -116,7 +120,7 @@ if __name__ == '__main__':
                          "values": [None],
                          "data_types": [float]}
 
-    response_from_driver = ["=V752 1.00E-05;0000\r"]  # Typical pressure response
+    response_from_driver = ["=V752 1.00E-05;00\r"]  # Typical pressure response
 
     x = AIMDriver()
 
