@@ -66,7 +66,9 @@ class SerialDeviceFinderLinux(DeviceFinder):
                 _identifier = _identifier[0]
 
                 port, raw_info = line.split(" - ")
-                serial_number = raw_info.split("_")[-1]
+                serial_number = raw_info.split("_")[-1] + "_" + port  # TODO: This is a total hack. pyserial on windows
+                # TODO doesn't seem to be able to return the correct serial number of a device.
+                # TODO: I think we have to rethink how to uniquely address serial devices! -DW
 
                 _found_devices_by_ids[serial_number] = {"port": port,
                                                         "identifier": _identifier}
@@ -110,7 +112,7 @@ class SerialDeviceFinderWindows(DeviceFinder):
         for port_info in list_ports.comports():
 
             if port_info.vid is None:
-                continue
+                continue  # Only accepting ports with vid/pid
 
             # print("{}:{}".format(hex(port_info.vid), hex(port_info.pid)), ", {}".format(port_info.description))
 

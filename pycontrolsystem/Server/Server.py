@@ -191,7 +191,6 @@ def serial_watchdog(com_pipe, debug, port_identifiers):
                     print(_finder_info)
                 if _finder_info[finder.name]['added'] != {}:
                     _device_added = True
-
                 if _finder_info[finder.name]['obsolete']:
                     _device_removed = True
 
