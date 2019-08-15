@@ -26,6 +26,7 @@ class AIMDriver:
             ack = True
             value, status = _message.strip().split()[1].split(';')
             value = float(value)
+
             gas_type = [0, 0, 0]  # Default is N2 (binary 000 = ascii 0)
             p_units = [1, 0]  # Default is Pascal (binary 10 = ascii 2)
             # TODO: This is probably wrong. I usually only receive two bytes when manually querying
@@ -48,6 +49,7 @@ class AIMDriver:
             print("Could not understand gauge response!")
 
         if ack:
+            print("nAIM-S value:", value)
             return {'acknowledged': ack, 'value': value}
         else:
             return {'acknowledged': ack, 'value': False}
