@@ -128,7 +128,7 @@ class SerialDeviceFinderWindows(DeviceFinder):
                 # TODO: This is a total hack. pyserial on windows
                 # TODO doesn't seem to be able to return the correct serial number of a device.
                 # TODO: I think we have to rethink how to uniquely address serial devices! -DW
-                # TODO: Changing this here means changing it in the Client and then the cross-platform comp. is broken!
+                # TODO: cross-platform compatibility is broken atm!
                 port = port_info.device
                 new_id = "{}_{}_{}".format(port_info.vid, port_info.pid, port_info.serial_number)
 

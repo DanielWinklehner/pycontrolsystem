@@ -6,7 +6,7 @@ from .CODriver import *
 from .AIMDriver import *
 
 """
-The driver mapping contains the information needed for the DeviceDriver class and the RasPiServer to
+The driver mapping contains the information needed for the DeviceDriver class and the Server to
 use the respective translation functions from GUI to Device and back and the correct baud rate
 """
 driver_mapping = {'ArduinoMicro': {'driver': ArduinoDriver,

@@ -88,7 +88,7 @@ class DeviceManager(object):
                 cmd = self._set_command_queue.get_nowait()
 
                 msgs = self._driver.translate_gui_to_device(cmd)
-                print(msgs)
+                # print(msgs)
                 for msg in msgs:
                     # this takes some time
                     try:
@@ -305,7 +305,7 @@ def set_value_on_device():
         vidpid = driver_mapping[driver_name]["vid_pid"]
         server_side_device_id = "{}_{}_{}".format(int(vidpid[0]), int(vidpid[1]), master_device_id)
 
-        print("vidpid_id:", server_side_device_id)
+        # print("vidpid_id:", server_side_device_id)
 
         device_data['device_id'] = slave_device_id
 
@@ -424,8 +424,8 @@ def listen_to_pipe():
 
                     for _key, _port_info in _added.items():
                         # add devices/threads
-                        print('Adding device {} on port {}'.format(_key, _port_info))
                         _baud_rate = driver_mapping[_port_info["identifier"]]["baud_rate"]
+                        print('Adding device {} on port {} with baud rade {}'.format(_key, _port_info, _baud_rate))
 
                         com = SerialCOM(arduino_id=_key,
                                         port_name=_port_info["port"],
