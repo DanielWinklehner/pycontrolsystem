@@ -217,7 +217,7 @@ class Device(QObject):
 
     @staticmethod
     def driver_list():
-        return driver_mapping.keys()
+        return list(driver_mapping.keys())
         # return ['ArduinoMega', 'ArduinoMicro', 'RS485', 'FT232R', 'Teensy', 'Prolific', 'nAIM-S', 'MATSUSADA']
 
     def user_edit_properties(self):

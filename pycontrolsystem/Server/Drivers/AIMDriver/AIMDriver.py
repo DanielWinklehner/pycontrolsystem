@@ -10,7 +10,7 @@ class AIMDriver:
     @staticmethod
     def parse_message(_message):
         ack = False
-
+        print("mAIM-S message:", _message)
         if _message.startswith('*'):
             # Error response or set commend acknowledged (error code '00' = all good)
             print("Error response:", _message)
@@ -22,7 +22,7 @@ class AIMDriver:
                 print("AIMDriver received error message #{}".format(status))
         elif _message.startswith('='):
             # Query response
-            print("Query response:", _message)
+            # print("Query response:", _message)
             ack = True
             value, status = _message.strip().split()[1].split(';')
             value = float(value)
