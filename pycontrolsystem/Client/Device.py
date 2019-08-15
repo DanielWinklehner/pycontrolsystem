@@ -18,6 +18,7 @@ from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject
 
 from .Channel import Channel
 from .gui.widgets.EntryForm import EntryForm
+from ..Server import driver_mapping
 
 
 class DeviceWidget(QWidget):
@@ -216,7 +217,8 @@ class Device(QObject):
 
     @staticmethod
     def driver_list():
-        return ['ArduinoMega', 'ArduinoMicro', 'RS485', 'FT232R', 'Teensy', 'Prolific', 'MATSUSADA']
+        return driver_mapping.keys()
+        # return ['ArduinoMega', 'ArduinoMicro', 'RS485', 'FT232R', 'Teensy', 'Prolific', 'nAIM-S', 'MATSUSADA']
 
     def user_edit_properties(self):
         """ Returns list of properties that should be user-editable

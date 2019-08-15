@@ -362,7 +362,7 @@ def query_device():
 
             vidpid = driver_mapping[driver_name]["vid_pid"]
             server_side_device_id = "{}_{}_{}".format(int(vidpid[0]), int(vidpid[1]), master_device_id)
-            print("vidpid_id:", server_side_device_id)
+            # print("vidpid_id:", server_side_device_id)
 
             try:
                 _devices[server_side_device_id].query_message = device_data
