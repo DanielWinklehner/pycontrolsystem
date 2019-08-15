@@ -120,6 +120,7 @@ class DeviceManager(object):
                         try:
                             resp = self._driver.translate_device_to_gui(
                                 com_resp_list, self._query_device_data[device_id])
+                            print(device_id, resp)
                         except:
                             continue
 

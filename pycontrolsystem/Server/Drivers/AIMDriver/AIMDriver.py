@@ -49,7 +49,6 @@ class AIMDriver:
             print("Could not understand gauge response!")
 
         if ack:
-            print("nAIM-S value:", value)
             return {'acknowledged': ack, 'value': value}
         else:
             return {'acknowledged': ack, 'value': False}
@@ -62,6 +61,9 @@ class AIMDriver:
             msg = "?"
 
         msg += self.command_dict[for_what]
+
+        if value is not None:
+            msg += " {:.0f}".format(value)
 
         msg += '\r'
 
