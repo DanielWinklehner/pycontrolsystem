@@ -114,6 +114,7 @@ class DeviceWidget(QWidget):
     def gblayout(self):
         return self._gblayout
 
+
 class Device(QObject):
 
     _sig_entry_form_ok = pyqtSignal(object, dict)
@@ -144,7 +145,7 @@ class Device(QObject):
 
         self._error_message = ''
         self._retry_time = 30
-        self._polling_rate = 0. # Hz
+        self._polling_rate = 0.0  # Hz
 
         self._entry_form = EntryForm(self._label, '', self.user_edit_properties(), self)
         self._entry_form.sig_save.connect(self.save_changes)
@@ -406,7 +407,7 @@ class Device(QObject):
         for channel_name, channel in self._channels.items():
             properties['channels'][channel_name] = channel.get_json()
 
-        return properties #json.dumps(properties)
+        return properties  # json.dumps(properties)
 
     def write_json(self, filename):
         myjson = self.get_json()

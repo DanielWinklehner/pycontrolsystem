@@ -66,9 +66,7 @@ class SerialDeviceFinderLinux(DeviceFinder):
                 _identifier = _identifier[0]
 
                 port, raw_info = line.split(" - ")
-                serial_number = raw_info.split("_")[-1] + "_" + port  # TODO: This is a total hack. pyserial on windows
-                # TODO doesn't seem to be able to return the correct serial number of a device.
-                # TODO: I think we have to rethink how to uniquely address serial devices! -DW
+                serial_number = raw_info.split("_")[-1]
 
                 _found_devices_by_ids[serial_number] = {"port": port,
                                                         "identifier": _identifier}
@@ -127,17 +125,20 @@ class SerialDeviceFinderWindows(DeviceFinder):
 
                 _identifier = _identifiers[0]
 
+                # TODO: This is a total hack. pyserial on windows
+                # TODO doesn't seem to be able to return the correct serial number of a device.
+                # TODO: I think we have to rethink how to uniquely address serial devices! -DW
+                # TODO: Changing this here means changing it in the Client and then the cross-platform comp. is broken!
                 port = port_info.device
-                serial_number = port_info.serial_number
+                new_id = "{}_{}_{}".format(port_info.vid, port_info.pid, port_info.new_id)
 
-                _found_devices_by_ids[serial_number] = {"port": port,
-                                                        "identifier": _identifier}
+                _found_devices_by_ids[new_id] = {"port": port, "identifier": _identifier}
 
-                if serial_number not in _device_ids:
+                if new_id not in _device_ids:
                     # _device_added = True
-                    _added_devices_by_ids[serial_number] = _found_devices_by_ids[serial_number]
+                    _added_devices_by_ids[new_id] = _found_devices_by_ids[new_id]
                 else:
-                    del _device_ids[_device_ids.index(serial_number)]
+                    del _device_ids[_device_ids.index(new_id)]
 
         # Now, let's check if there are any devices still left in the id list
         if len(_device_ids) > 0:

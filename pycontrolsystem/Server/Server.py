@@ -268,8 +268,8 @@ def initialize():
 @app.route("/device/set", methods=['GET', 'POST'])
 def set_value_on_device():
     # Load the data stream
-    set_cmd = json.loads(request.form['data'])
-    set_cmd["set"] = True
+    device_data = json.loads(request.form['data'])
+    device_data["set"] = True
 
     # For reference: This is the message from the GUI:
     # device_data = {'device_driver': device_driver_name,
@@ -280,17 +280,36 @@ def set_value_on_device():
     #                'values': [values],
     #                'data_types': [types]}
 
-    full_device_id = set_cmd['device_id']
-    device_id_parts = full_device_id.split("_")
-    sub_id = device_id_parts[0]
-    device_id = device_id_parts[0]
+    # --- Handle the various id numbers:
+    # Server side, we use <vid>_<pid>_<id> for now, but a better system is necessary!
+    # Some devices are master/slave (like the Matsusada CO series)
+    # For those we need to send commands to the master only
+    # e.g. if serial number is XXXXXX_2, we look for device XXXXXX, and
+    # device data should then use only the '2' as the id.
+    client_side_device_id = device_data['device_id']
+    device_id_parts = client_side_device_id.split("_")
+    master_device_id = device_id_parts[0]
 
-    if len(device_id_parts) > 1:
-        sub_id = device_id_parts[1]
+    driver_name = device_data["device_driver"]
+    if driver_name not in driver_mapping.keys():
+        # device not foundin driver list
+        return "ERROR: Device Driver not found in driver_mapping"
+    else:
 
-    set_cmd['device_id'] = sub_id
+        if len(device_id_parts) > 1:
+            slave_device_id = device_id_parts[1]
+            device_data['device_id'] = device_id_parts[1]
+        else:
+            slave_device_id = master_device_id
 
-    _devices[device_id].add_command_to_queue(set_cmd)
+        vidpid = driver_mapping[driver_name]["vid_pid"]
+        server_side_device_id = "{}_{}_{}".format(vidpid[0], vidpid[1], master_device_id)
+
+        print("vidpid_id:", server_side_device_id)
+
+        device_data['device_id'] = slave_device_id
+
+        _devices[server_side_device_id].add_command_to_queue(device_data)
 
     # set_cmd['device_id'] = old_device_id
 
@@ -319,23 +338,39 @@ def query_device():
     for i, device_data in enumerate(data):
         device_data['set'] = False
 
-        # for master/slave devices, we need to send commands to the master only
+        # --- Handle the various id numbers:
+        # Server side, we use <vid>_<pid>_<id> for now, but a better system is necessary!
+        # Some devices are master/slave (like the Matsusada CO series)
+        # For those we need to send commands to the master only
         # e.g. if serial number is XXXXXX_2, we look for device XXXXXX, and
         # device data should then use only the '2' as the id.
-        full_device_id = device_data['device_id']
-        device_id_parts = full_device_id.split("_")
-        device_id = device_id_parts[0]
+        client_side_device_id = device_data['device_id']
+        device_id_parts = client_side_device_id.split("_")
+        master_device_id = device_id_parts[0]
 
-        if len(device_id_parts) > 1:
-            device_id = device_id_parts[1]
-            device_data['device_id'] = device_id_parts[1]
+        driver_name = device_data["device_driver"]
+        if driver_name not in driver_mapping.keys():
+            # device not foundin driver list
+            devices_responses[client_side_device_id] = "ERROR: Device Driver not found in driver_mapping"
+        else:
 
-        try:
-            _devices[device_id_parts[0]].query_message = device_data
-            devices_responses[full_device_id] = _devices[device_id_parts[0]].current_values[device_id]
-        except KeyError:
-            # device not found on server
-            devices_responses[full_device_id] = "ERROR: Device not found on server"
+            if len(device_id_parts) > 1:
+                slave_device_id = device_id_parts[1]
+                device_data['device_id'] = device_id_parts[1]
+            else:
+                slave_device_id = master_device_id
+
+            vidpid = driver_mapping[driver_name]["vid_pid"]
+            server_side_device_id = "{}_{}_{}".format(vidpid[0], vidpid[1], master_device_id)
+            print("vidpid_id:", server_side_device_id)
+
+            try:
+                _devices[server_side_device_id].query_message = device_data
+                devices_responses[client_side_device_id] = \
+                    _devices[server_side_device_id].current_values[slave_device_id]
+            except KeyError:
+                # device not found on server
+                devices_responses[client_side_device_id] = "ERROR: Device not found on server"
 
     global _current_responses
     _current_responses = json.dumps(devices_responses)
