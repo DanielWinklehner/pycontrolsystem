@@ -130,7 +130,7 @@ class SerialDeviceFinderWindows(DeviceFinder):
                 # TODO: I think we have to rethink how to uniquely address serial devices! -DW
                 # TODO: Changing this here means changing it in the Client and then the cross-platform comp. is broken!
                 port = port_info.device
-                new_id = "{}_{}_{}".format(port_info.vid, port_info.pid, port_info.new_id)
+                new_id = "{}_{}_{}".format(port_info.vid, port_info.pid, port_info.serial_number)
 
                 _found_devices_by_ids[new_id] = {"port": port, "identifier": _identifier}
 
