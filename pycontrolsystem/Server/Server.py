@@ -23,7 +23,7 @@ if 'Windows' not in myplatform:
 class DeviceManager(object):
     """ Handles sending/receiving messages for each device """
 
-    def __init__(self, serial_number, driver, com):
+    def __init__(self, serial_number, driver, com, max_polling_rate=50.0):
         self._serial_number = serial_number
         self._driver = driver
         self._com = com
@@ -38,7 +38,7 @@ class DeviceManager(object):
         # polling rate for this device
         self._polling_rate = 0
         self._com_times = deque(maxlen=20)
-        self._polling_rate_max = 50.0  # Hz
+        self._polling_rate_max = max_polling_rate  # Hz
 
         self._set_command_queue = queue.Queue()
         self._terminate = False
@@ -54,6 +54,14 @@ class DeviceManager(object):
     @property
     def polling_rate(self):
         return self._polling_rate
+
+    @property
+    def polling_rate_max(self):
+        return self._polling_rate_max
+
+    @polling_rate_max.setter
+    def polling_rate_max(self, polling_rate_max):
+        self._polling_rate_max = polling_rate_max
 
     @property
     def current_values(self):
@@ -433,7 +441,11 @@ def listen_to_pipe():
                                         timeout=1.0)
 
                         drv = driver_mapping[_port_info["identifier"]]['driver']()
-                        _devices[_key] = DeviceManager(_key, drv, com)
+                        if _port_info["identifier"] == "nAIM-S":
+                            max_polling_rate = 10.0
+                        else:
+                            max_polling_rate = 50.0
+                        _devices[_key] = DeviceManager(_key, drv, com, max_polling_rate=max_polling_rate)
                         _threads[_key] = threading.Thread(target=_devices[_key].run)
                         _threads[_key].start()
 
