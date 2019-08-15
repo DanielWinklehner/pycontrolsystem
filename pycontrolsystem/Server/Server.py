@@ -303,7 +303,7 @@ def set_value_on_device():
             slave_device_id = master_device_id
 
         vidpid = driver_mapping[driver_name]["vid_pid"]
-        server_side_device_id = "{}_{}_{}".format(vidpid[0], vidpid[1], master_device_id)
+        server_side_device_id = "{}_{}_{}".format(int(vidpid[0]), int(vidpid[1]), master_device_id)
 
         print("vidpid_id:", server_side_device_id)
 
@@ -361,7 +361,7 @@ def query_device():
                 slave_device_id = master_device_id
 
             vidpid = driver_mapping[driver_name]["vid_pid"]
-            server_side_device_id = "{}_{}_{}".format(vidpid[0], vidpid[1], master_device_id)
+            server_side_device_id = "{}_{}_{}".format(int(vidpid[0]), int(vidpid[1]), master_device_id)
             print("vidpid_id:", server_side_device_id)
 
             try:
