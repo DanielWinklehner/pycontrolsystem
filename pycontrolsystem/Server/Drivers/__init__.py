@@ -13,7 +13,7 @@ driver_mapping = {'ArduinoMicro': {'driver': ArduinoDriver,
                                    'baud_rate': 115200,
                                    'max_polling_rate': 50,
                                    'vid_pid': (0x2341, 0x8037),
-                                   'known_serials': ["A"]
+                                   'known_serials': ["A", "9"]
                                    },
                   'ArduinoMega': {'driver': ArduinoDriver,
                                   'baud_rate': 115200,
@@ -45,7 +45,7 @@ driver_mapping = {'ArduinoMicro': {'driver': ArduinoDriver,
                                'baud_rate': 9600,
                                'max_polling_rate': 50,
                                'vid_pid': (0x067B, 0x2303),
-                               'known_serials': ["9"]
+                               'known_serials': ["9", "8"]
                                },
                   'nAIM-S': {'driver': AIMDriver,
                              'baud_rate': 9600,
