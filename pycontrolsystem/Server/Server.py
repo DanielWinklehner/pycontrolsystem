@@ -120,7 +120,6 @@ class DeviceManager(object):
                         try:
                             resp = self._driver.translate_device_to_gui(
                                 com_resp_list, self._query_device_data[device_id])
-                            print(device_id, resp)
                         except:
                             continue
 
@@ -442,11 +441,8 @@ def listen_to_pipe():
                                         timeout=1.0)
 
                         drv = driver_mapping[_port_info["identifier"]]['driver']()
-                        if _port_info["identifier"] == "nAIM-S":
-                            max_polling_rate = 10.0
-                        else:
-                            max_polling_rate = 50.0
-                        _devices[_key] = DeviceManager(_key, drv, com, max_polling_rate=max_polling_rate)
+                        mpr = driver_mapping[_port_info["identifier"]].get('max_polling_rate', 50)
+                        _devices[_key] = DeviceManager(_key, drv, com, max_polling_rate=mpr)
                         _threads[_key] = threading.Thread(target=_devices[_key].run)
                         _threads[_key].start()
 

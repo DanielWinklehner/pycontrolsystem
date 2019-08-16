@@ -399,6 +399,8 @@ class ControlSystem(object):
 
             if device.locked or device_id not in parsed_response.keys():
                 continue
+            # if device_name == "naims":
+            #     print("Working on naims is {}".format(device_id in parsed_response.keys()))
 
             # if "ERROR" in parsed_response[device_id]:
             if any(resp in parsed_response[device_id] for resp in ("ERROR", "TIMEOUT")):
@@ -422,6 +424,9 @@ class ControlSystem(object):
                 # metadata the server sent back that doesn't contain channel values
                 if channel_name in ['timestamp', 'polling_rate']:
                     continue
+                #
+                # if device_name == "naims":
+                #     print("Updating channel {} with value {}".format(channel_name, value))
 
                 channel = device.get_channel_by_name(channel_name)
                 if channel is None:
