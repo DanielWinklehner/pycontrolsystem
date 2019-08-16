@@ -20,7 +20,8 @@ driver_mapping = {'ArduinoMicro': {'driver': ArduinoDriver,
                                   'max_polling_rate': 50,
                                   'vid_pid': (0x2341, 0x0042),
                                   'known_serials': ["95433343733351502071",
-                                                    "954323138373513060D0"]
+                                                    "954323138373513060D0",
+                                                    "954323138373519002A2"]
                                   },
                   'RS485': {'driver': MFCDriver,
                             'baud_rate': 9600,
