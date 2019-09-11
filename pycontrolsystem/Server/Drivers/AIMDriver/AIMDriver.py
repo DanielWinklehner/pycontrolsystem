@@ -10,7 +10,7 @@ class AIMDriver:
     @staticmethod
     def parse_message(_message):
         ack = False
-        print("mAIM-S message:", _message)
+        # print("mAIM-S message:", _message)
         if _message.startswith('*'):
             # Error response or set commend acknowledged (error code '00' = all good)
             print("Error response:", _message)
