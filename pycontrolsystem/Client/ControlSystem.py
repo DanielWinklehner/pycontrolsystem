@@ -34,6 +34,8 @@ from .gui.dialogs.ProcedureDialog import ProcedureDialog
 from .gui.dialogs.ErrorDialog import ErrorDialog
 from .gui.dialogs.WarningDialog import WarningDialog
 
+from .DataLogger import DataLogger
+
 try:
     import qdarkstyle
 except ImportError:
@@ -43,6 +45,8 @@ from .Device import Device
 from .Channel import Channel
 from .Procedure import BasicProcedure, PidProcedure  # , Procedure, TimerProcedure
 from .FileOps import load_from_csv
+
+LOG_DATA = True
 
 
 def query_server(com_pipe, server_url, debug=False):
@@ -201,6 +205,10 @@ class ControlSystem(object):
         # Get the root folder of this script
         self._root = os.path.abspath(os.path.dirname(__file__))
         self._title = title
+
+        current_time = time.strftime('%a-%d-%b-%Y_%H-%M-%S-EST', time.localtime())
+        self._data_logger = DataLogger(filename=r"D:\mist-1_cs_logs\smist-1_log_{}.h5".format(current_time))
+        self._data_logger.initialize()
 
         # Initialize communicator thread as None
         self._communicator = None
@@ -546,8 +554,12 @@ class ControlSystem(object):
             # device can respond, might receive same point twice)
             if ch.x_values[-1] != timestamp:
                 ch.append_data(timestamp, ch.value)
+                if LOG_DATA:
+                    self._data_logger.log_value(device_name, channel_name, ch.value, timestamp)
         else:
             ch.append_data(timestamp, ch.value)
+            if LOG_DATA:
+                self._data_logger.log_value(device_name, channel_name, ch.value, timestamp)
 
         # check basic procedures to see if we should activate them
         for name, procedure in self._procedures.items():
